@@ -1,0 +1,20 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dashboard-title {
+  margin-bottom: 0 !important;
+  color: #35198e;
+}
+
+.dashboard-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}

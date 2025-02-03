@@ -1,0 +1,78 @@
+/* Ensure the layout fills the screen height */
+.app-layout {
+  min-height: 100vh;
+}
+
+/* The main area (excluding the sidebar) */
+.layout-main {
+  background: #f5f5f5; /* light gray background for contrast */
+}
+
+/* Content area padding and background */
+.layout-content {
+  margin: 24px;
+  padding: 24px;
+  background: #fff;
+  min-height: 280px;
+  border-radius: 8px; /* Slight rounding for a modern look */
+}
+
+/* Navbar styling */
+.navbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.navbar-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #35198e;
+}
+
+/* Search input in the navbar */
+.navbar-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.navbar-search {
+  width: 200px;
+  border-radius: 4px;
+}
+
+/* Sidebar (Sider) styling */
+.sidebar-sider {
+  background: #35198e !important;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Sidebar logo area */
+.sidebar-logo {
+  height: 64px;
+  margin: 16px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* background: rgba(255, 255, 255, 0.15); */
+  border-radius: 4px;
+}
+
+/* Sidebar menu items style (optional additional hover or active states) */
+.sidebar-menu-item {
+  transition: all 0.3s ease;
+}
+
+.sidebar-menu-item a {
+  color: #fff !important;
+}
+
+.sidebar-menu-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}

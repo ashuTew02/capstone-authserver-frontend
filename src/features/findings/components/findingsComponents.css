@@ -1,0 +1,73 @@
+/* findingsComponents.css */
+
+/* Page container */
+.findings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Title styling */
+.findings-page-title {
+  margin-bottom: 0 !important;
+  color: #35198e;
+}
+
+/* Loading spinner container */
+.findings-loading {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Error alert margin */
+.findings-error-alert {
+  margin-top: 16px;
+}
+
+/* Filter spacing, etc. (optional) */
+.ant-form-inline > .ant-form-item {
+  margin-right: 16px;
+  margin-bottom: 8px;
+}
+
+/* Table container */
+.findings-table-container {
+  margin-top: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  /* no overflow so we can see the table's scroll bar if necessary */
+}
+
+.table-title {
+  font-weight: 600;
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* On row hover, highlight pointer */
+.ant-table-tbody > tr:hover {
+  background-color: #f5f5f5 !important;
+  cursor: pointer;
+}
+
+/* File path styling */
+.file-path {
+  color: #888;
+}
+
+/* Markdown content styling */
+.markdown-content {
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
+
+/* You can style headings, code blocks, etc. inside markdown if you want */
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  color: #35198e;
+}
