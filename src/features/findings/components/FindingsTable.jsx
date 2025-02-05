@@ -49,7 +49,7 @@ function FindingsTable({
         const truncatedId = truncateText(id, 12);
         return (
           <a
-            href={record.url}
+            href={record.toolAdditionalProperties.html_url}
             target="_blank"
             rel="noreferrer"
             className="table-title"
@@ -59,6 +59,23 @@ function FindingsTable({
         );
       },
       width: 150,
+    },
+    {
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      sorter: (a, b) => (a.updatedAt > b.updatedAt ? 1 : -1), // simple string compare
+      // defaultSortOrder: "descend",
+      sortDirections: ["ascend", "descend"],
+      render: (updatedAt, record) => {
+        const formattedDateStr = updatedAt.replace("IST", "GMT+0530");
+        const jsDate = new Date(formattedDateStr);
+
+        console.log(jsDate.toLocaleString("en-IN"));
+
+        return <span>{jsDate.toLocaleString("en-IN")}</span>;
+      },
+      width: 120,
     },
     {
       title: "Tool",
@@ -80,7 +97,10 @@ function FindingsTable({
       key: "title",
       sorter: (a, b) => a.title.localeCompare(b.title),
       sortDirections: ["ascend", "descend"],
-      render: (text) => <span className="table-title">{text}</span>,
+      render: (text) => (
+        <span className="table-title">{truncateText(text, 30)}</span>
+      ),
+      width: 180,
     },
     {
       title: "State",
@@ -118,7 +138,7 @@ function FindingsTable({
       sorter: (a, b) => a.desc.localeCompare(b.desc),
       sortDirections: ["ascend", "descend"],
       render: (text) => {
-        const truncatedText = truncateText(text, 150);
+        const truncatedText = truncateText(text, 120);
         return <span>{truncatedText}</span>;
       },
     },

@@ -1,12 +1,12 @@
-// src/features/findings/pages/FindingsPage.jsx
-
-import { useState } from "react";
-import { Typography, Spin, Alert, Drawer } from "antd";
+import { useState, useEffect } from "react";
+import { Typography, Spin, Alert, Drawer, Select, Button, message } from "antd";
 import FindingsFilter from "../components/FindingsFilter";
 import FindingsTable from "../components/FindingsTable";
 import {
   useGetFindingsQuery,
   useGetFindingByIdQuery,
+  // IMPORT the update mutation:
+  useUpdateStateMutation,
 } from "../../../api/findingsApi";
 import "../components/findingsComponents.css";
 import ReactMarkdown from "react-markdown";
@@ -14,11 +14,26 @@ import convertTextFormat from "../../../utils/convertToProperTextUtil";
 
 const { Title } = Typography;
 
+// Helper to decide next states:
+function getPossibleNextStates(currentState) {
+  const openStates = ["OPEN"];
+  const closedStates = ["FALSE_POSITIVE", "SUPPRESSED", "FIXED"];
+
+  if (!currentState) {
+    return [...openStates, ...closedStates];
+  }
+  if (openStates.includes(currentState.toUpperCase())) {
+    return closedStates;
+  } else {
+    return openStates;
+  }
+}
+
 function FindingsPage() {
   // Filter states
-  const [severity, setSeverity] = useState();
-  const [state, setState] = useState();
-  const [toolType, setToolType] = useState();
+  const [severity, setSeverity] = useState([]);
+  const [state, setState] = useState([]);
+  const [toolType, setToolType] = useState([]);
 
   // Local pagination state (1-based for user display)
   const [currentPage, setCurrentPage] = useState(1);
@@ -48,6 +63,26 @@ function FindingsPage() {
     skip: !selectedFindingId, // only fetch if we have an ID
   });
 
+  // =============================
+  //  STATE UPDATE MUTATION
+  // =============================
+  const [updateStateMutation, { isLoading: isUpdatingState }] =
+    useUpdateStateMutation();
+
+  // Keep a local state for the next state selection in the drawer
+  const [nextState, setNextState] = useState("");
+
+  // Extract the single finding from the response
+  const singleFinding = singleFindingData?.data;
+
+  // Whenever the singleFinding changes, reset the local "nextState" to the current
+  useEffect(() => {
+    if (singleFinding) {
+      setNextState(singleFinding.state); // e.g. "OPEN" or "FIXED"
+    }
+  }, [singleFinding]);
+
+  // Handle changes to the filter bar
   const handleFilterChange = (newSeverity, newState, newToolType) => {
     setSeverity(newSeverity);
     setState(newState);
@@ -55,6 +90,7 @@ function FindingsPage() {
     setCurrentPage(1); // reset page
   };
 
+  // Table pagination changes
   const handleTableChange = (newPage, newPageSize) => {
     setCurrentPage(newPage);
     setPageSize(newPageSize);
@@ -73,8 +109,34 @@ function FindingsPage() {
     setSelectedFindingId(null);
   };
 
-  // Extract the single finding from the response
-  const singleFinding = singleFindingData?.data;
+  // =============================
+  //  HANDLE SAVING THE NEW STATE
+  // =============================
+  const handleSaveState = async () => {
+    if (!singleFinding) return;
+
+    try {
+      // Example: We need "tool", "alertNumber", and "findingState" in the body
+      // Adjust based on your real data. If your finding has an "alertNumber" property, use that.
+      // Otherwise, you may adapt as needed.
+      await updateStateMutation({
+        tool: singleFinding.toolType, // e.g. "SECRET_SCAN"
+        alertNumber: singleFinding.toolAdditionalProperties.number, // or singleFinding.alertNumber, if it exists
+        findingState: nextState, // e.g. "FALSE_POSITIVE"
+      }).unwrap();
+
+      message.success("Finding state updated successfully!");
+
+      // Optionally refresh the table or do more logic here
+      // e.g., close the drawer automatically if you want
+      // setDrawerVisible(false);
+    } catch (err) {
+      // Display error message from server or fallback
+      const errMsg =
+        err?.data?.message || err?.message || "Error updating finding state.";
+      message.error(errMsg);
+    }
+  };
 
   return (
     <div className="findings-page">
@@ -141,6 +203,34 @@ function FindingsPage() {
         {/* If we have the singleFinding loaded, display its data */}
         {singleFinding && (
           <div>
+            {/* =============================== */}
+            {/*   DROPDOWN SELECT + SAVE BUTTON */}
+            {/* =============================== */}
+            <Typography.Title level={5} style={{ marginTop: 0 }}>
+              Update State
+            </Typography.Title>
+
+            {/* The possible states based on current state */}
+            <Select
+              style={{ width: "50%" }}
+              value={convertTextFormat(nextState)}
+              onChange={setNextState}
+            >
+              {getPossibleNextStates(singleFinding.state).map((st) => (
+                <Select.Option key={st} value={st}>
+                  {convertTextFormat(st)}
+                </Select.Option>
+              ))}
+            </Select>
+
+            <Button
+              type="primary"
+              onClick={handleSaveState}
+              loading={isUpdatingState}
+              style={{ marginTop: 5, marginLeft: 10 }}
+            >
+              Save
+            </Button>
             <Typography.Title level={4}>{singleFinding.title}</Typography.Title>
             <Typography.Paragraph type="secondary">
               {singleFinding.id}
@@ -155,6 +245,7 @@ function FindingsPage() {
             <Typography.Paragraph>
               <strong>State:</strong> {convertTextFormat(singleFinding.state)}
             </Typography.Paragraph>
+
             <Typography.Paragraph>
               <strong>CVSS:</strong> {singleFinding.cvss || "N/A"}
             </Typography.Paragraph>
@@ -164,7 +255,6 @@ function FindingsPage() {
             <Typography.Paragraph>
               <strong>File Path:</strong> {singleFinding.filePath || "N/A"}
             </Typography.Paragraph>
-            {/* A list of CWEs with links */}
             <Typography.Paragraph>
               <strong>CWEs:</strong>{" "}
               {(!singleFinding.cwes || singleFinding.cwes.length === 0) &&
@@ -176,13 +266,14 @@ function FindingsPage() {
                   if (match) {
                     const cweNumber = match[1];
                     const isLastIndex = idx === singleFinding.cwes.length - 1;
+                    // Attempt to remove leading zeros
+                    const finalCweNumber = cweNumber.replace(/^0+/, "");
                     return (
                       <a
                         key={`${cwe}-${idx}`}
-                        href={`https://cwe.mitre.org/data/definitions/${cweNumber}.html`}
+                        href={`https://cwe.mitre.org/data/definitions/${finalCweNumber}.html`}
                         target="_blank"
                         rel="noreferrer"
-                        // style={{ marginRight: 8 }}
                       >
                         {cwe}
                         {!isLastIndex && `, `}
@@ -198,7 +289,6 @@ function FindingsPage() {
                 })}
             </Typography.Paragraph>
 
-            {/* If the "desc" field might contain MD, you can do: */}
             <Typography.Title level={5} style={{ marginTop: 16 }}>
               Description
             </Typography.Title>
@@ -206,7 +296,7 @@ function FindingsPage() {
               <ReactMarkdown>{singleFinding.desc || ""}</ReactMarkdown>
             </div>
 
-            {/* If "suggestions" is also Markdown, display it similarly */}
+            {/* Suggestions (if any) */}
             {singleFinding.suggestions && (
               <>
                 <Typography.Title level={5} style={{ marginTop: 16 }}>

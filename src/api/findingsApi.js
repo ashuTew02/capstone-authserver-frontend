@@ -7,17 +7,27 @@ export const findingsApi = createApi({
   }),
   endpoints: (builder) => ({
     getFindings: builder.query({
-      // GET /findings?toolType=...&severity=...&state=...&page=...&size=...
-      query: ({ toolType, severity, state, page = 0, size = 10 }) => ({
-        url: "/findings",
-        params: {
-          toolType,
-          severity,
-          state,
-          page,
-          size,
-        },
-      }),
+      query: ({
+        severity = [],
+        state = [],
+        toolType = [],
+        page = 0,
+        size = 10,
+      }) => {
+        const params = new URLSearchParams();
+
+        // Append each severity
+        severity.forEach((s) => params.append("severity", s));
+        // Append each state
+        state.forEach((st) => params.append("state", st));
+        // Append each toolType
+        toolType.forEach((t) => params.append("toolType", t));
+
+        params.set("page", page);
+        params.set("size", size);
+
+        return { url: `/findings?${params.toString()}`, method: "GET" };
+      },
     }),
     getFindingById: builder.query({
       // GET /findings/:id
@@ -35,6 +45,13 @@ export const findingsApi = createApi({
       // GET /tool
       query: () => "/tool",
     }),
+    updateState: builder.mutation({
+      query: (body) => ({
+        url: "/api/github/alert",
+        method: "PATCH",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -44,4 +61,6 @@ export const {
   useGetStatesQuery,
   useGetToolTypesQuery,
   useGetFindingByIdQuery,
+
+  useUpdateStateMutation,
 } = findingsApi;

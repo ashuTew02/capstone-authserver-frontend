@@ -1,4 +1,3 @@
-// src/features/findings/components/FindingsFilter.jsx
 import { useState } from "react";
 import { Form, Select, Button } from "antd";
 import {
@@ -13,13 +12,14 @@ function FindingsFilter({ onFilterChange }) {
   const { data: severitiesData } = useGetSeveritiesQuery();
   const { data: statesData } = useGetStatesQuery();
   const { data: toolsData } = useGetToolTypesQuery();
-  console.log(severitiesData);
-  // Local states for each filter
-  const [selectedSeverity, setSelectedSeverity] = useState();
-  const [selectedState, setSelectedState] = useState();
-  const [selectedTool, setSelectedTool] = useState();
+
+  // Now these are arrays:
+  const [selectedSeverity, setSelectedSeverity] = useState([]);
+  const [selectedState, setSelectedState] = useState([]);
+  const [selectedTool, setSelectedTool] = useState([]);
 
   const handleApplyFilters = () => {
+    // Pass arrays up to the parent
     onFilterChange(selectedSeverity, selectedState, selectedTool);
   };
 
@@ -27,9 +27,10 @@ function FindingsFilter({ onFilterChange }) {
     <Form layout="inline" style={{ marginBottom: 16 }}>
       <Form.Item label="Tool Type">
         <Select
+          mode="multiple"
           allowClear
-          placeholder="Select tool"
-          style={{ width: 160 }}
+          placeholder="Select tool(s)"
+          style={{ width: 220 }}
           value={selectedTool}
           onChange={(val) => setSelectedTool(val)}
         >
@@ -43,9 +44,10 @@ function FindingsFilter({ onFilterChange }) {
 
       <Form.Item label="Severity">
         <Select
+          mode="multiple"
           allowClear
-          placeholder="Select severity"
-          style={{ width: 160 }}
+          placeholder="Select severity(ies)"
+          style={{ width: 220 }}
           value={selectedSeverity}
           onChange={(val) => setSelectedSeverity(val)}
         >
@@ -59,9 +61,10 @@ function FindingsFilter({ onFilterChange }) {
 
       <Form.Item label="State">
         <Select
+          mode="multiple"
           allowClear
-          placeholder="Select state"
-          style={{ width: 160 }}
+          placeholder="Select state(s)"
+          style={{ width: 220 }}
           value={selectedState}
           onChange={(val) => setSelectedState(val)}
         >
