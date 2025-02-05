@@ -153,7 +153,7 @@ function FindingsPage() {
         </div>
       )}
 
-      {isError && (
+      {/* {isError && (
         <Alert
           message="Error"
           description={error?.data?.message || "Could not fetch findings."}
@@ -161,7 +161,7 @@ function FindingsPage() {
           showIcon
           className="findings-error-alert"
         />
-      )}
+      )} */}
 
       {/* Table: Only render if data is available */}
       {data && data.data && (
