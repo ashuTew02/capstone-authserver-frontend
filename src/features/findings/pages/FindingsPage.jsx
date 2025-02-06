@@ -45,7 +45,7 @@ function FindingsPage() {
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   // Query the backend for the list of findings
-  const { data, isLoading, isError, error } = useGetFindingsQuery({
+  const { data, isLoading, isError, error, refetch: refetchFindings } = useGetFindingsQuery({
     severity,
     state,
     toolType,
@@ -59,6 +59,7 @@ function FindingsPage() {
     isLoading: isSingleFindingLoading,
     isError: isSingleFindingError,
     error: singleFindingError,
+    refetch: refetchSingleFinding,
   } = useGetFindingByIdQuery(selectedFindingId, {
     skip: !selectedFindingId, // only fetch if we have an ID
   });
@@ -122,9 +123,16 @@ function FindingsPage() {
       await updateStateMutation({
         tool: singleFinding.toolType, // e.g. "SECRET_SCAN"
         alertNumber: singleFinding.toolAdditionalProperties.number, // or singleFinding.alertNumber, if it exists
-        findingState: nextState, // e.g. "FALSE_POSITIVE"
+        findingState: nextState,
+        id: singleFinding.id // e.g. "FALSE_POSITIVE"
       }).unwrap();
-
+      setTimeout(() => {
+        // Force the single-finding query to refetch
+        refetchSingleFinding();
+  
+        // Also refetch the entire list if you want
+        refetchFindings();
+      }, 1600);
       message.success("Finding state updated successfully!");
 
       // Optionally refresh the table or do more logic here

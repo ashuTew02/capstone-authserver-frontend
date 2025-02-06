@@ -5,6 +5,7 @@ export const findingsApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:8081",
   }),
+  tagTypes: ["Finding"],
   endpoints: (builder) => ({
     getFindings: builder.query({
       query: ({
@@ -28,10 +29,12 @@ export const findingsApi = createApi({
 
         return { url: `/findings?${params.toString()}`, method: "GET" };
       },
+      providesTags: ["Finding"],
     }),
     getFindingById: builder.query({
       // GET /findings/:id
       query: (id) => ({ url: "/finding", params: { id } }),
+      providesTags: ["Finding"],
     }),
     getSeverities: builder.query({
       // GET /findings/severity
@@ -51,6 +54,7 @@ export const findingsApi = createApi({
         method: "PATCH",
         body,
       }),
+      // invalidatesTags: ["Finding"],
     }),
   }),
 });
