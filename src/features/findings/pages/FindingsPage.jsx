@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Typography, Spin, Alert, Drawer, Select, Button, message } from "antd";
+import { Typography, Spin, Alert, Drawer, Button, message, Select } from "antd";
+import { useSearchParams } from "react-router-dom";
 import FindingsFilter from "../components/FindingsFilter";
 import FindingsTable from "../components/FindingsTable";
 import {
   useGetFindingsQuery,
   useGetFindingByIdQuery,
-  // IMPORT the update mutation:
   useUpdateStateMutation,
 } from "../../../api/findingsApi";
 import "../components/findingsComponents.css";
@@ -14,46 +14,54 @@ import convertTextFormat from "../../../utils/convertToProperTextUtil";
 
 const { Title } = Typography;
 
-// Helper to decide next states:
+// Helper to decide possible next states
 function getPossibleNextStates(currentState) {
   const openStates = ["OPEN"];
   const closedStates = ["FALSE_POSITIVE", "SUPPRESSED", "FIXED"];
-
   if (!currentState) {
     return [...openStates, ...closedStates];
   }
-  if (openStates.includes(currentState.toUpperCase())) {
-    return closedStates;
-  } else {
-    return openStates;
-  }
+  return openStates.includes(currentState.toUpperCase())
+    ? closedStates
+    : openStates;
 }
 
 function FindingsPage() {
-  // Filter states
-  const [severity, setSeverity] = useState([]);
-  const [state, setState] = useState([]);
-  const [toolType, setToolType] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Local pagination state (1-based for user display)
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  // 1) Initialize filters and pagination from URL
+  const initialSeverity = searchParams.getAll("severity"); // e.g. ['HIGH', 'LOW']
+  const initialState = searchParams.getAll("state");
+  const initialToolType = searchParams.getAll("toolType");
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialSize = parseInt(searchParams.get("size") || "10", 10);
+  const initialFindingId = searchParams.get("findingId"); // if provided, open drawer
 
-  // Track the currently selected finding (for the drawer)
-  const [selectedFindingId, setSelectedFindingId] = useState(null);
-  // Control whether the drawer is open
-  const [drawerVisible, setDrawerVisible] = useState(false);
+  // 2) Set local React state
+  const [severity, setSeverity] = useState(initialSeverity);
+  const [state, setState] = useState(initialState);
+  const [toolType, setToolType] = useState(initialToolType);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialSize);
+  const [selectedFindingId, setSelectedFindingId] = useState(initialFindingId);
+  const [drawerVisible, setDrawerVisible] = useState(Boolean(initialFindingId));
 
-  // Query the backend for the list of findings
-  const { data, isLoading, isError, error, refetch: refetchFindings } = useGetFindingsQuery({
+  // 3) Query the findings list
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch: refetchFindings,
+  } = useGetFindingsQuery({
     severity,
     state,
     toolType,
-    page: currentPage - 1, // server is 0-based
+    page: currentPage - 1,
     size: pageSize,
   });
 
-  // Query the backend for a single finding when we have a selected ID
+  // 4) Query single finding (for the drawer)
   const {
     data: singleFindingData,
     isLoading: isSingleFindingLoading,
@@ -61,90 +69,87 @@ function FindingsPage() {
     error: singleFindingError,
     refetch: refetchSingleFinding,
   } = useGetFindingByIdQuery(selectedFindingId, {
-    skip: !selectedFindingId, // only fetch if we have an ID
+    skip: !selectedFindingId,
   });
-
-  // =============================
-  //  STATE UPDATE MUTATION
-  // =============================
-  const [updateStateMutation, { isLoading: isUpdatingState }] =
-    useUpdateStateMutation();
-
-  // Keep a local state for the next state selection in the drawer
-  const [nextState, setNextState] = useState("");
-
-  // Extract the single finding from the response
   const singleFinding = singleFindingData?.data;
 
-  // Whenever the singleFinding changes, reset the local "nextState" to the current
+  // 5) Mutation to update the finding state
+  const [updateStateMutation, { isLoading: isUpdatingState }] =
+    useUpdateStateMutation();
+  const [nextState, setNextState] = useState("");
+
   useEffect(() => {
     if (singleFinding) {
-      setNextState(singleFinding.state); // e.g. "OPEN" or "FIXED"
+      setNextState(singleFinding.state || "");
     }
   }, [singleFinding]);
 
-  // Handle changes to the filter bar
+  // 6) Sync React state back to URL
+  useEffect(() => {
+    const params = new URLSearchParams();
+    severity.forEach((s) => params.append("severity", s));
+    state.forEach((st) => params.append("state", st));
+    toolType.forEach((t) => params.append("toolType", t));
+    params.set("page", String(currentPage));
+    params.set("size", String(pageSize));
+    if (selectedFindingId) {
+      params.set("findingId", selectedFindingId);
+    }
+    setSearchParams(params, { replace: true });
+  }, [severity, state, toolType, currentPage, pageSize, selectedFindingId, setSearchParams]);
+
+  // 7) Handlers
   const handleFilterChange = (newSeverity, newState, newToolType) => {
     setSeverity(newSeverity);
     setState(newState);
     setToolType(newToolType);
-    setCurrentPage(1); // reset page
+    setCurrentPage(1);
   };
 
-  // Table pagination changes
   const handleTableChange = (newPage, newPageSize) => {
     setCurrentPage(newPage);
     setPageSize(newPageSize);
   };
 
-  // Called when a row is clicked in the table
   const onRowClick = (record) => {
-    // record.id is the finding ID
-    setSelectedFindingId(record.id);
-    setDrawerVisible(true);
+    try {
+      if (record && record.id) {
+        setSelectedFindingId(record.id);
+        setDrawerVisible(true);
+      } else {
+        console.error("Row record is missing id:", record);
+      }
+    } catch (error) {
+      console.error("Error in onRowClick:", error);
+    }
   };
 
-  // close the drawer
   const handleCloseDrawer = () => {
     setDrawerVisible(false);
     setSelectedFindingId(null);
   };
 
-  // =============================
-  //  HANDLE SAVING THE NEW STATE
-  // =============================
-  const handleSaveState = async () => {
+  async function handleSaveState() {
     if (!singleFinding) return;
-
     try {
-      // Example: We need "tool", "alertNumber", and "findingState" in the body
-      // Adjust based on your real data. If your finding has an "alertNumber" property, use that.
-      // Otherwise, you may adapt as needed.
       await updateStateMutation({
-        tool: singleFinding.toolType, // e.g. "SECRET_SCAN"
-        alertNumber: singleFinding.toolAdditionalProperties.number, // or singleFinding.alertNumber, if it exists
+        tool: singleFinding.toolType,
+        alertNumber: singleFinding.toolAdditionalProperties?.number || 0,
         findingState: nextState,
-        id: singleFinding.id // e.g. "FALSE_POSITIVE"
+        id: singleFinding.id,
       }).unwrap();
-      setTimeout(() => {
-        // Force the single-finding query to refetch
-        refetchSingleFinding();
-  
-        // Also refetch the entire list if you want
-        refetchFindings();
-      }, 1600);
-      message.success("Finding state updated successfully!");
 
-      // Optionally refresh the table or do more logic here
-      // e.g., close the drawer automatically if you want
-      // setDrawerVisible(false);
+      setTimeout(() => {
+        refetchSingleFinding();
+        refetchFindings();
+      }, 1200);
+      message.success("Finding state updated successfully!");
     } catch (err) {
-      // Display error message from server or fallback
       const errMsg =
         err?.data?.message || err?.message || "Error updating finding state.";
       message.error(errMsg);
     }
-  };
+  }
 
   return (
     <div className="findings-page">
@@ -152,8 +157,12 @@ function FindingsPage() {
         Findings
       </Title>
 
-      {/* Filter Bar */}
-      <FindingsFilter onFilterChange={handleFilterChange} />
+      <FindingsFilter
+        onFilterChange={handleFilterChange}
+        defaultSeverity={severity}
+        defaultState={state}
+        defaultTool={toolType}
+      />
 
       {isLoading && (
         <div className="findings-loading">
@@ -161,7 +170,7 @@ function FindingsPage() {
         </div>
       )}
 
-      {/* {isError && (
+      {isError && (
         <Alert
           message="Error"
           description={error?.data?.message || "Could not fetch findings."}
@@ -169,22 +178,20 @@ function FindingsPage() {
           showIcon
           className="findings-error-alert"
         />
-      )} */}
+      )}
 
-      {/* Table: Only render if data is available */}
       {data && data.data && (
         <FindingsTable
           dataSource={data.data.findings || []}
           currentPage={currentPage}
-          pageSize={data.data.size || pageSize}
+          pageSize={data.data.pageSize || pageSize}
           totalPages={data.data.totalPages}
-          totalHits={data.data.totalHits}
+          totalHits={data.data.findingsCount || 0}
           onChange={handleTableChange}
           onRowClick={onRowClick}
         />
       )}
 
-      {/* Slide-in Drawer for Single Finding Details */}
       <Drawer
         title="Finding Details"
         placement="right"
@@ -194,7 +201,6 @@ function FindingsPage() {
         destroyOnClose
       >
         {isSingleFindingLoading && <Spin size="large" tip="Loading..." />}
-
         {isSingleFindingError && (
           <Alert
             message="Error"
@@ -207,30 +213,22 @@ function FindingsPage() {
             style={{ marginBottom: 16 }}
           />
         )}
-
-        {/* If we have the singleFinding loaded, display its data */}
         {singleFinding && (
           <div>
-            {/* =============================== */}
-            {/*   DROPDOWN SELECT + SAVE BUTTON */}
-            {/* =============================== */}
             <Typography.Title level={5} style={{ marginTop: 0 }}>
               Update State
             </Typography.Title>
-
-            {/* The possible states based on current state */}
             <Select
               style={{ width: "50%" }}
-              value={convertTextFormat(nextState)}
+              value={convertTextFormat(nextState || "")}
               onChange={setNextState}
             >
-              {getPossibleNextStates(singleFinding.state).map((st) => (
+              {getPossibleNextStates(singleFinding.state || "").map((st) => (
                 <Select.Option key={st} value={st}>
                   {convertTextFormat(st)}
                 </Select.Option>
               ))}
             </Select>
-
             <Button
               type="primary"
               onClick={handleSaveState}
@@ -239,21 +237,23 @@ function FindingsPage() {
             >
               Save
             </Button>
-            <Typography.Title level={4}>{singleFinding.title}</Typography.Title>
+            <Typography.Title level={4}>
+              {singleFinding.title || "No Title"}
+            </Typography.Title>
             <Typography.Paragraph type="secondary">
-              {singleFinding.id}
-            </Typography.Paragraph>
-
-            <Typography.Paragraph>
-              <strong>Tool:</strong> {convertTextFormat(singleFinding.toolType)}
+              {singleFinding.id || "No ID"}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>Severity:</strong> {singleFinding.severity}
+              <strong>Tool:</strong>{" "}
+              {convertTextFormat(singleFinding.toolType || "")}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>State:</strong> {convertTextFormat(singleFinding.state)}
+              <strong>Severity:</strong> {singleFinding.severity || "N/A"}
             </Typography.Paragraph>
-
+            <Typography.Paragraph>
+              <strong>State:</strong>{" "}
+              {convertTextFormat(singleFinding.state || "")}
+            </Typography.Paragraph>
             <Typography.Paragraph>
               <strong>CVSS:</strong> {singleFinding.cvss || "N/A"}
             </Typography.Paragraph>
@@ -261,57 +261,54 @@ function FindingsPage() {
               <strong>CVE:</strong> {singleFinding.cve || "N/A"}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>File Path:</strong> {singleFinding.filePath || "N/A"}
+              <strong>File Path:</strong>{" "}
+              {singleFinding.filePath || "N/A"}
             </Typography.Paragraph>
             <Typography.Paragraph>
               <strong>CWEs:</strong>{" "}
-              {(!singleFinding.cwes || singleFinding.cwes.length === 0) &&
-                "N/A"}
-              {singleFinding.cwes &&
-                singleFinding.cwes.map((cwe, idx) => {
-                  // Check if the CWE has the format CWE-<number>
-                  const match = cwe.match(/^CWE-(\d+)$/);
-                  if (match) {
-                    const cweNumber = match[1];
-                    const isLastIndex = idx === singleFinding.cwes.length - 1;
-                    // Attempt to remove leading zeros
-                    const finalCweNumber = cweNumber.replace(/^0+/, "");
+              {(!singleFinding.cwes || singleFinding.cwes.length === 0)
+                ? "N/A"
+                : singleFinding.cwes.map((cwe, idx) => {
+                    const match = cwe.match(/^CWE-(\d+)$/);
+                    if (match) {
+                      const cweNumber = match[1].replace(/^0+/, "");
+                      const isLast = idx === singleFinding.cwes.length - 1;
+                      return (
+                        <a
+                          key={`${cwe}-${idx}`}
+                          href={`https://cwe.mitre.org/data/definitions/${cweNumber}.html`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {cwe}
+                          {!isLast && ", "}
+                        </a>
+                      );
+                    }
                     return (
-                      <a
-                        key={`${cwe}-${idx}`}
-                        href={`https://cwe.mitre.org/data/definitions/${finalCweNumber}.html`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <span key={`${cwe}-${idx}`} style={{ marginRight: 8 }}>
                         {cwe}
-                        {!isLastIndex && `, `}
-                      </a>
+                      </span>
                     );
-                  }
-                  // Not in standard format
-                  return (
-                    <span key={`${cwe}-${idx}`} style={{ marginRight: 8 }}>
-                      {cwe}
-                    </span>
-                  );
-                })}
+                  })}
             </Typography.Paragraph>
-
             <Typography.Title level={5} style={{ marginTop: 16 }}>
               Description
             </Typography.Title>
             <div className="markdown-content">
-              <ReactMarkdown>{singleFinding.desc || ""}</ReactMarkdown>
+              <ReactMarkdown>
+                {singleFinding.desc || "No description available."}
+              </ReactMarkdown>
             </div>
-
-            {/* Suggestions (if any) */}
             {singleFinding.suggestions && (
               <>
                 <Typography.Title level={5} style={{ marginTop: 16 }}>
                   Suggestions
                 </Typography.Title>
                 <div className="markdown-content">
-                  <ReactMarkdown>{singleFinding.suggestions}</ReactMarkdown>
+                  <ReactMarkdown>
+                    {singleFinding.suggestions || "No suggestions available."}
+                  </ReactMarkdown>
                 </div>
               </>
             )}

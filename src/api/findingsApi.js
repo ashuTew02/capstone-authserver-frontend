@@ -7,64 +7,87 @@ export const findingsApi = createApi({
   }),
   tagTypes: ["Finding"],
   endpoints: (builder) => ({
+    // ============ GET /findings with multiple param arrays ============
     getFindings: builder.query({
-      query: ({
-        severity = [],
-        state = [],
-        toolType = [],
-        page = 0,
-        size = 10,
-      }) => {
+      query: ({ severity = [], state = [], toolType = [], page = 0, size = 10 }) => {
         const params = new URLSearchParams();
-
-        // Append each severity
         severity.forEach((s) => params.append("severity", s));
-        // Append each state
         state.forEach((st) => params.append("state", st));
-        // Append each toolType
         toolType.forEach((t) => params.append("toolType", t));
-
         params.set("page", page);
         params.set("size", size);
-
         return { url: `/findings?${params.toString()}`, method: "GET" };
       },
       providesTags: ["Finding"],
     }),
+
+    // ============ GET /finding?id=... =============
     getFindingById: builder.query({
-      // GET /findings/:id
       query: (id) => ({ url: "/finding", params: { id } }),
       providesTags: ["Finding"],
     }),
+
+    // ============ GET /findings/severity =============
     getSeverities: builder.query({
-      // GET /findings/severity
       query: () => "/findings/severity",
     }),
+    // ============ GET /findings/state =============
     getStates: builder.query({
-      // GET /findings/state
       query: () => "/findings/state",
     }),
+    // ============ GET /tool =============
     getToolTypes: builder.query({
-      // GET /tool
       query: () => "/tool",
     }),
+
+    // ============ PATCH /api/github/alert =============
     updateState: builder.mutation({
       query: (body) => ({
         url: "/api/github/alert",
         method: "PATCH",
         body,
       }),
-      // invalidatesTags: ["Finding"],
+    }),
+
+    // ============ Dashboard endpoints =============
+    getToolDistribution: builder.query({
+      // GET /dashboard/toolDistribution
+      query: () => "/dashboard/toolDistribution",
+    }),
+    getSeverityDistribution: builder.query({
+      // e.g. /dashboard/severityDistribution?tool=CODE_SCAN&tool=DEPENDABOT
+      query: (tools = []) => {
+        const params = new URLSearchParams();
+        tools.forEach((t) => params.append("tool", t));
+        return `/dashboard/severityDistribution?${params.toString()}`;
+      },
+    }),
+    getStateDistribution: builder.query({
+      query: (tools = []) => {
+        const params = new URLSearchParams();
+        tools.forEach((t) => params.append("tool", t));
+        return `/dashboard/stateDistribution?${params.toString()}`;
+      },
+    }),
+    getCvssDistribution: builder.query({
+      query: (tools = []) => {
+        const params = new URLSearchParams();
+        tools.forEach((t) => params.append("tool", t));
+        return `/dashboard/cvssDistribution?${params.toString()}`;
+      },
     }),
   }),
 });
 
 export const {
   useGetFindingsQuery,
+  useGetFindingByIdQuery,
   useGetSeveritiesQuery,
   useGetStatesQuery,
   useGetToolTypesQuery,
-  useGetFindingByIdQuery,
-
   useUpdateStateMutation,
+  useGetToolDistributionQuery,
+  useGetSeverityDistributionQuery,
+  useGetStateDistributionQuery,
+  useGetCvssDistributionQuery,
 } = findingsApi;

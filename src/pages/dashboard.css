@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin: 16px;
 }
 
 .dashboard-title {
@@ -12,6 +13,7 @@
 .dashboard-card {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
   transition: box-shadow 0.2s ease;
 }
 

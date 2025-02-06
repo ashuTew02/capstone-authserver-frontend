@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Select, Button } from "antd";
 import {
   useGetSeveritiesQuery,
@@ -7,19 +7,29 @@ import {
 } from "../../../api/findingsApi";
 import convertTextFormat from "../../../utils/convertToProperTextUtil";
 
-// eslint-disable-next-line react/prop-types
-function FindingsFilter({ onFilterChange }) {
+function FindingsFilter({ onFilterChange, defaultSeverity = [], defaultState = [], defaultTool = [] }) {
   const { data: severitiesData } = useGetSeveritiesQuery();
   const { data: statesData } = useGetStatesQuery();
   const { data: toolsData } = useGetToolTypesQuery();
 
-  // Now these are arrays:
-  const [selectedSeverity, setSelectedSeverity] = useState([]);
-  const [selectedState, setSelectedState] = useState([]);
-  const [selectedTool, setSelectedTool] = useState([]);
+  const [selectedSeverity, setSelectedSeverity] = useState(defaultSeverity);
+  const [selectedState, setSelectedState] = useState(defaultState);
+  const [selectedTool, setSelectedTool] = useState(defaultTool);
+
+  // Update local state when defaults change
+  useEffect(() => {
+    setSelectedSeverity(defaultSeverity);
+  }, [defaultSeverity]);
+
+  useEffect(() => {
+    setSelectedState(defaultState);
+  }, [defaultState]);
+
+  useEffect(() => {
+    setSelectedTool(defaultTool);
+  }, [defaultTool]);
 
   const handleApplyFilters = () => {
-    // Pass arrays up to the parent
     onFilterChange(selectedSeverity, selectedState, selectedTool);
   };
 
@@ -41,7 +51,6 @@ function FindingsFilter({ onFilterChange }) {
           ))}
         </Select>
       </Form.Item>
-
       <Form.Item label="Severity">
         <Select
           mode="multiple"
@@ -58,7 +67,6 @@ function FindingsFilter({ onFilterChange }) {
           ))}
         </Select>
       </Form.Item>
-
       <Form.Item label="State">
         <Select
           mode="multiple"
@@ -75,7 +83,6 @@ function FindingsFilter({ onFilterChange }) {
           ))}
         </Select>
       </Form.Item>
-
       <Form.Item>
         <Button type="primary" onClick={handleApplyFilters}>
           Apply

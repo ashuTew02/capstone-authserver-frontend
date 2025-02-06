@@ -1,12 +1,9 @@
-/* eslint-disable react/prop-types */
-// src/features/findings/components/FindingsTable.jsx
-
 import { Table, Tag } from "antd";
 import "./findingsComponents.css";
 import convertTextFormat from "../../../utils/convertToProperTextUtil";
 import truncateText from "../../../utils/truncateTextUtil";
 
-// Helper to sort severity strings
+// Helper for severity sorting
 function severityToNumber(sev) {
   switch (sev) {
     case "CRITICAL":
@@ -31,9 +28,8 @@ function FindingsTable({
   totalHits,
   totalPages,
   onChange,
-  onRowClick, // <== pass in a callback for row click
+  onRowClick,
 }) {
-  // Convert antd table "pagination" events to parent's callback
   const handleTableChange = (pagination, filters, sorter) => {
     onChange(pagination.current, pagination.pageSize);
   };
@@ -43,13 +39,14 @@ function FindingsTable({
       title: "ID",
       dataIndex: "id",
       key: "id",
-      sorter: (a, b) => (a.id > b.id ? 1 : -1), // simple string compare
+      sorter: (a, b) => a.id.localeCompare(b.id),
       sortDirections: ["ascend", "descend"],
       render: (id, record) => {
         const truncatedId = truncateText(id, 12);
         return (
           <a
-            href={record.toolAdditionalProperties.html_url}
+            onClick={(e) => e.stopPropagation()}
+            href={record.toolAdditionalProperties?.html_url}
             target="_blank"
             rel="noreferrer"
             className="table-title"
@@ -64,15 +61,11 @@ function FindingsTable({
       title: "Updated At",
       dataIndex: "updatedAt",
       key: "updatedAt",
-      sorter: (a, b) => (a.updatedAt > b.updatedAt ? 1 : -1), // simple string compare
-      // defaultSortOrder: "descend",
+      sorter: (a, b) => a.updatedAt.localeCompare(b.updatedAt),
       sortDirections: ["ascend", "descend"],
-      render: (updatedAt, record) => {
+      render: (updatedAt) => {
         const formattedDateStr = updatedAt.replace("IST", "GMT+0530");
         const jsDate = new Date(formattedDateStr);
-
-        console.log(jsDate.toLocaleString("en-IN"));
-
         return <span>{jsDate.toLocaleString("en-IN")}</span>;
       },
       width: 120,
@@ -82,13 +75,9 @@ function FindingsTable({
       dataIndex: "toolType",
       key: "toolType",
       sorter: (a, b) =>
-        convertTextFormat(a.toolType).localeCompare(
-          convertTextFormat(b.toolType)
-        ),
+        convertTextFormat(a.toolType).localeCompare(convertTextFormat(b.toolType)),
       sortDirections: ["ascend", "descend"],
-      render: (tool) => (
-        <span className="table-title">{convertTextFormat(tool)}</span>
-      ),
+      render: (tool) => <span className="table-title">{convertTextFormat(tool)}</span>,
       width: 120,
     },
     {
@@ -115,8 +104,7 @@ function FindingsTable({
       title: "Severity",
       dataIndex: "severity",
       key: "severity",
-      sorter: (a, b) =>
-        severityToNumber(a.severity) - severityToNumber(b.severity),
+      sorter: (a, b) => severityToNumber(a.severity) - severityToNumber(b.severity),
       sortDirections: ["ascend", "descend"],
       render: (severity) => {
         let color = "blue";
@@ -125,7 +113,6 @@ function FindingsTable({
         else if (severity === "MEDIUM") color = "orange";
         else if (severity === "LOW") color = "green";
         else if (severity === "INFO") color = "cyan";
-
         return <Tag color={color}>{severity}</Tag>;
       },
       width: 100,
@@ -134,13 +121,10 @@ function FindingsTable({
       title: "Description",
       dataIndex: "desc",
       key: "desc",
-      width: 500,
       sorter: (a, b) => a.desc.localeCompare(b.desc),
       sortDirections: ["ascend", "descend"],
-      render: (text) => {
-        const truncatedText = truncateText(text, 120);
-        return <span>{truncatedText}</span>;
-      },
+      render: (text) => <span>{text ? truncateText(text, 120) : ""}</span>,
+      width: 500,
     },
   ];
 
@@ -153,7 +137,7 @@ function FindingsTable({
         pagination={{
           current: currentPage,
           pageSize: pageSize,
-          total: totalHits, // total # of items from backend
+          total: totalHits,
           showTotal: (total) =>
             `Total ${total} items, ${totalPages} pages overall`,
           showSizeChanger: true,
@@ -161,14 +145,9 @@ function FindingsTable({
         }}
         onChange={handleTableChange}
         scroll={{ y: "52vh" }}
-        // onRow to capture row clicks for the modal/drawer
-        onRow={(record) => {
-          return {
-            onClick: () => {
-              if (onRowClick) onRowClick(record);
-            },
-          };
-        }}
+        onRow={(record) => ({
+          onClick: () => onRowClick && onRowClick(record),
+        })}
       />
     </div>
   );
