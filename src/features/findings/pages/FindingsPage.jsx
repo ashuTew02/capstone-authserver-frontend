@@ -11,6 +11,7 @@ import {
 import "../components/findingsComponents.css";
 import ReactMarkdown from "react-markdown";
 import convertTextFormat from "../../../utils/convertToProperTextUtil";
+import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
@@ -45,6 +46,8 @@ function FindingsPage() {
   const [pageSize, setPageSize] = useState(initialSize);
   const [selectedFindingId, setSelectedFindingId] = useState(initialFindingId);
   const [drawerVisible, setDrawerVisible] = useState(Boolean(initialFindingId));
+
+  const { roles } = useSelector((state) => state.auth);
 
   // 3) Query the findings list
   const {
@@ -215,28 +218,32 @@ function FindingsPage() {
         )}
         {singleFinding && (
           <div>
-            <Typography.Title level={5} style={{ marginTop: 0 }}>
-              Update State
-            </Typography.Title>
-            <Select
-              style={{ width: "50%" }}
-              value={convertTextFormat(nextState || "")}
-              onChange={setNextState}
-            >
-              {getPossibleNextStates(singleFinding.state || "").map((st) => (
-                <Select.Option key={st} value={st}>
-                  {convertTextFormat(st)}
-                </Select.Option>
-              ))}
-            </Select>
-            <Button
-              type="primary"
-              onClick={handleSaveState}
-              loading={isUpdatingState}
-              style={{ marginTop: 5, marginLeft: 10 }}
-            >
-              Save
-            </Button>
+            {roles.includes("SUPER_ADMIN") && (
+              <>
+                <Typography.Title level={5} style={{ marginTop: 0 }}>
+                  Update State
+                </Typography.Title>
+                <Select
+                  style={{ width: "50%" }}
+                  value={convertTextFormat(nextState || "")}
+                  onChange={setNextState}
+                >
+                  {getPossibleNextStates(singleFinding.state || "").map((st) => (
+                    <Select.Option key={st} value={st}>
+                      {convertTextFormat(st)}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Button
+                  type="primary"
+                  onClick={handleSaveState}
+                  loading={isUpdatingState}
+                  style={{ marginTop: 5, marginLeft: 10 }}
+                >
+                  Save
+                </Button>
+              </>
+            )}
             <Typography.Title level={4}>
               {singleFinding.title || "No Title"}
             </Typography.Title>

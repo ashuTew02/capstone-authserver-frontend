@@ -1,10 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import baseQueryWithAuth from "./baseQueryWithAuth";
 
 export const findingsApi = createApi({
   reducerPath: "findingsApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:8081",
-  }),
+  baseQuery: baseQueryWithAuth,
   tagTypes: ["Finding"],
   endpoints: (builder) => ({
     // ============ GET /findings with multiple param arrays ============
