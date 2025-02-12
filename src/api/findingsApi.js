@@ -29,14 +29,20 @@ export const findingsApi = createApi({
     // ============ GET /findings/severity =============
     getSeverities: builder.query({
       query: () => "/findings/severity",
+      providesTags: ["Finding"],
+
     }),
     // ============ GET /findings/state =============
     getStates: builder.query({
       query: () => "/findings/state",
+      providesTags: ["Finding"],
+
     }),
     // ============ GET /tool =============
     getToolTypes: builder.query({
       query: () => "/tool",
+      providesTags: ["Finding"],
+
     }),
 
     // ============ PATCH /api/github/alert =============
@@ -52,6 +58,7 @@ export const findingsApi = createApi({
     getToolDistribution: builder.query({
       // GET /dashboard/toolDistribution
       query: () => "/dashboard/toolDistribution",
+      providesTags: ["Finding"],
     }),
     getSeverityDistribution: builder.query({
       // e.g. /dashboard/severityDistribution?tool=CODE_SCAN&tool=DEPENDABOT
@@ -60,6 +67,7 @@ export const findingsApi = createApi({
         tools.forEach((t) => params.append("tool", t));
         return `/dashboard/severityDistribution?${params.toString()}`;
       },
+      providesTags: ["Finding"],
     }),
     getStateDistribution: builder.query({
       query: (tools = []) => {
@@ -67,6 +75,7 @@ export const findingsApi = createApi({
         tools.forEach((t) => params.append("tool", t));
         return `/dashboard/stateDistribution?${params.toString()}`;
       },
+      providesTags: ["Finding"],
     }),
     getCvssDistribution: builder.query({
       query: (tools = []) => {
@@ -74,6 +83,7 @@ export const findingsApi = createApi({
         tools.forEach((t) => params.append("tool", t));
         return `/dashboard/cvssDistribution?${params.toString()}`;
       },
+      providesTags: ["Finding"],
     }),
   }),
 });

@@ -1,3 +1,5 @@
+// src/layouts/AppLayout.jsx
+
 import { Layout } from "antd";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
@@ -8,7 +10,7 @@ const { Content } = Layout;
 
 function AppLayout() {
   return (
-    <Layout className="app-layout">
+    <Layout className="app-layout-wrapper">
       {/* Collapsible sidebar */}
       <Sidebar />
 

@@ -1,46 +1,62 @@
 // src/features/auth/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
-// Helper to read from localStorage if present
+// Only store the token in localStorage. We’ll refresh user/tenant data after login.
 const storedToken = localStorage.getItem("accessToken");
-const storedRoles = localStorage.getItem("roles");
-const parsedRoles = storedRoles ? storedRoles.split(",") : [];
+
+const initialState = {
+  token: storedToken || null,
+  // user object from /auth/me (id, email, defaultTenantId, etc.)
+  user: null,
+  // The actively selected tenant (from the JWT)
+  currentTenant: null, 
+  // The list of all tenants the user belongs to
+  allTenants: [],
+};
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    token: storedToken || null,
-    roles: parsedRoles || [],
-    user: null, 
-    // could store entire user object if you want
-  },
+  initialState,
   reducers: {
     setCredentials: (state, action) => {
-      const { token, roles, user } = action.payload;
-      state.token = token;
-      state.roles = roles || [];
-      state.user = user || null;
+      const { token, user, currentTenant, allTenants } = action.payload;
 
-      // Persist to localStorage if desired
-      if (token) {
-        localStorage.setItem("accessToken", token);
-      } else {
-        localStorage.removeItem("accessToken");
+      if (token !== undefined) {
+        state.token = token;
+        // Save/remove token in localStorage
+        if (token) {
+          localStorage.setItem("accessToken", token);
+        } else {
+          localStorage.removeItem("accessToken");
+        }
       }
 
-      if (roles && roles.length > 0) {
-        localStorage.setItem("roles", roles.join(","));
-      } else {
-        localStorage.removeItem("roles");
+      if (user !== undefined) {
+        state.user = user;
+      }
+
+      if (currentTenant !== undefined) {
+        state.currentTenant = currentTenant;
+      }
+
+      if (allTenants !== undefined) {
+        state.allTenants = allTenants;
       }
     },
     clearCredentials: (state) => {
       state.token = null;
-      state.roles = [];
       state.user = null;
+      state.currentTenant = null;
+      state.allTenants = [];
 
       localStorage.removeItem("accessToken");
-      localStorage.removeItem("roles");
+    },
+    setToken: (state, action) => {
+      state.token = action.payload;
+      localStorage.setItem("accessToken", action.payload);
+    },
+    setCurrentTenant: (state, action) => {
+      state.currentTenant = action.payload;
     },
   },
 });

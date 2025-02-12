@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Typography } from "antd";
 import { GoogleOutlined } from "@ant-design/icons";
 import "./loginPage.css";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -10,6 +11,14 @@ function LoginPage() {
     // Redirect to your backend for Google OAuth2
     window.location.href = "http://localhost:8081/oauth2/authorization/google";
   };
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   return (
     <div className="login-page">

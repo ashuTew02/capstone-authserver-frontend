@@ -19,14 +19,11 @@ function Sidebar() {
     >
       {/* Sidebar logo section */}
       <div className="sidebar-logo">
-        {/* Point to the logo stored in the public folder */}
         <img
           src="/logo.webp"
           alt="Logo"
-          // Example inline style to change width based on collapsed state
           style={{
             width: collapsed ? "40px" : "120px",
-            transition: "width 0.3s",
           }}
         />
       </div>

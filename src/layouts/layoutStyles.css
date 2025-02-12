@@ -1,23 +1,110 @@
-/* Ensure the layout fills the screen height */
-.app-layout {
+/* Reset & Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: "Poppins", "Roboto", sans-serif;
+  background-color: #f0f2f5;
+}
+
+/* Overall layout wrapper with subtle animated gradient background */
+.app-layout-wrapper {
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.5s ease-in-out forwards;
 }
 
-/* The main area (excluding the sidebar) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 
+  The main section after the sidebar.
+  We'll keep a solid background color for readability of content.
+*/
 .layout-main {
-  background: #f5f5f5; /* light gray background for contrast */
+  background: #f5f5f5;
+  transition: background 0.3s ease;
 }
 
-/* Content area padding and background */
+/* Content area with slight fade/slide in effect */
 .layout-content {
   margin: 24px;
   padding: 24px;
   background: #fff;
   min-height: 280px;
-  border-radius: 8px; /* Slight rounding for a modern look */
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  animation: slideUp 0.4s ease forwards;
+  opacity: 0; /* Start hidden for the slideUp animation */
 }
 
-/* Navbar styling */
+@keyframes slideUp {
+  0% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   NAVBAR STYLING
+--------------------------------------------------------------------------- */
+/* .navbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  transition: background 0.3s ease;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 64px;
+} */
+
+/* .navbar-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #35198e;
+} */
+
+/* Navbar actions container */
+.navbar-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* Search input in the navbar */
+.navbar-search {
+  width: 220px;
+  border-radius: 6px;
+  transition: box-shadow 0.2s ease;
+}
+
+.navbar-search:focus,
+.navbar-search:hover {
+  box-shadow: 0 0 5px rgba(53, 25, 142, 0.3);
+}
+
+
+/* The main header */
 .navbar-header {
   display: flex;
   align-items: center;
@@ -25,54 +112,121 @@
   background: #fff;
   padding: 0 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 64px;
+}
+
+/* Left side: brand + mobile toggle button */
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .navbar-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: #35198e;
 }
 
-/* Search input in the navbar */
-.navbar-actions {
+/* Desktop actions row */
+.desktop-actions {
   display: flex;
+  align-items: center;
   gap: 16px;
 }
 
-.navbar-search {
-  width: 200px;
-  border-radius: 4px;
+/* The button used to toggle the mobile menu (hidden on desktop by default) */
+.mobile-menu-btn {
+  display: none; /* hidden on large screens by default */
 }
 
-/* Sidebar (Sider) styling */
+/* 
+  Media Query: If the screen is narrower than 768px, 
+  hide desktop actions and show mobile menu toggle
+*/
+@media (max-width: 768px) {
+  .desktop-actions {
+    display: none;
+  }
+  .mobile-menu-btn {
+    display: inline-block;
+  }
+}
+
+/* You can style the Drawer as needed */
+.mobile-drawer .ant-drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+
+/* ---------------------------------------------------------------------------
+   SIDEBAR (Sider) STYLING
+--------------------------------------------------------------------------- */
 .sidebar-sider {
-  background: #35198e !important;
+  background: linear-gradient(135deg, #35198e 0%, #2b2e4a 100%) !important;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
 }
 
-/* Sidebar logo area */
 .sidebar-logo {
   height: 64px;
   margin: 16px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background: rgba(255, 255, 255, 0.15); */
-  border-radius: 4px;
+  overflow: hidden;
+  transition: width 0.3s;
 }
 
-/* Sidebar menu items style (optional additional hover or active states) */
-.sidebar-menu-item {
+.sidebar-logo img {
   transition: all 0.3s ease;
 }
 
+.sidebar-menu-item {
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Sidebar menu text color is white; 
+   let’s also highlight on hover with a subtle glow or overlay. */
 .sidebar-menu-item a {
   color: #fff !important;
 }
 
+/* Hover effect for sidebar items */
 .sidebar-menu-item:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
 }
+
+/* Keep the active item clearly highlighted */
+.ant-menu-item-selected {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ...and if you want to style the text or icon for selected item differently: */
+.ant-menu-item-selected a {
+  color: #fff !important;
+}
+
+/* Collapsed sider min width if needed */
+.ant-layout-sider-collapsed .sidebar-logo {
+  margin: 8px;
+}
+
+/* 
+  Example animation or transform if you want the sider to scale
+  (just an idea – comment out if you don’t want it)
+*/
+.ant-layout-sider-collapsed {
+  transform: translateX(0);
+}
+
+/* 
+  If you want more advanced animations, consider using Framer Motion or React Spring.
+*/

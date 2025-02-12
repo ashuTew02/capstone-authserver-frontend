@@ -1,16 +1,29 @@
-/* findingsComponents.css */
-
 /* Page container */
 .findings-page {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  margin: 16px;
+  animation: fadeInUp 0.6s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Title styling */
 .findings-page-title {
   margin-bottom: 0 !important;
   color: #35198e;
+  font-weight: 700;
 }
 
 /* Loading spinner container */
@@ -25,7 +38,7 @@
   margin-top: 16px;
 }
 
-/* Filter spacing, etc. (optional) */
+/* Filter form items spacing */
 .ant-form-inline > .ant-form-item {
   margin-right: 16px;
   margin-bottom: 8px;
@@ -36,7 +49,21 @@
   margin-top: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  /* no overflow so we can see the table's scroll bar if necessary */
+  background: #fff;
+  /* overflow: hidden;  */
+  animation: fadeInTable 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInTable {
+  0% {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .table-title {
@@ -46,15 +73,27 @@
   cursor: pointer;
 }
 
-/* On row hover, highlight pointer */
+/* Table row hover effect */
 .ant-table-tbody > tr:hover {
   background-color: #f5f5f5 !important;
   cursor: pointer;
 }
 
-/* File path styling */
-.file-path {
-  color: #888;
+/* Drawer: let’s add some subtle animation from the right. 
+   (Antd already has a default transition, but we can override or enhance) */
+.ant-drawer.ant-drawer-open {
+  animation: slideDrawer 0.3s ease forwards;
+}
+
+@keyframes slideDrawer {
+  0% {
+    transform: translateX(100%);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 /* Markdown content styling */
@@ -65,7 +104,6 @@
   margin-top: 8px;
 }
 
-/* You can style headings, code blocks, etc. inside markdown if you want */
 .markdown-content h1,
 .markdown-content h2,
 .markdown-content h3 {

@@ -15,7 +15,6 @@ import { useSelector } from "react-redux";
 
 const { Title } = Typography;
 
-// Helper to decide possible next states
 function getPossibleNextStates(currentState) {
   const openStates = ["OPEN"];
   const closedStates = ["FALSE_POSITIVE", "SUPPRESSED", "FIXED"];
@@ -30,15 +29,13 @@ function getPossibleNextStates(currentState) {
 function FindingsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // 1) Initialize filters and pagination from URL
-  const initialSeverity = searchParams.getAll("severity"); // e.g. ['HIGH', 'LOW']
+  const initialSeverity = searchParams.getAll("severity");
   const initialState = searchParams.getAll("state");
   const initialToolType = searchParams.getAll("toolType");
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
   const initialSize = parseInt(searchParams.get("size") || "10", 10);
-  const initialFindingId = searchParams.get("findingId"); // if provided, open drawer
+  const initialFindingId = searchParams.get("findingId");
 
-  // 2) Set local React state
   const [severity, setSeverity] = useState(initialSeverity);
   const [state, setState] = useState(initialState);
   const [toolType, setToolType] = useState(initialToolType);
@@ -47,9 +44,8 @@ function FindingsPage() {
   const [selectedFindingId, setSelectedFindingId] = useState(initialFindingId);
   const [drawerVisible, setDrawerVisible] = useState(Boolean(initialFindingId));
 
-  const { roles } = useSelector((state) => state.auth);
+  const roles  = useSelector((state) => [state.auth?.currentTenant?.roleName]);
 
-  // 3) Query the findings list
   const {
     data,
     isLoading,
@@ -64,7 +60,6 @@ function FindingsPage() {
     size: pageSize,
   });
 
-  // 4) Query single finding (for the drawer)
   const {
     data: singleFindingData,
     isLoading: isSingleFindingLoading,
@@ -76,9 +71,7 @@ function FindingsPage() {
   });
   const singleFinding = singleFindingData?.data;
 
-  // 5) Mutation to update the finding state
-  const [updateStateMutation, { isLoading: isUpdatingState }] =
-    useUpdateStateMutation();
+  const [updateStateMutation, { isLoading: isUpdatingState }] = useUpdateStateMutation();
   const [nextState, setNextState] = useState("");
 
   useEffect(() => {
@@ -87,7 +80,6 @@ function FindingsPage() {
     }
   }, [singleFinding]);
 
-  // 6) Sync React state back to URL
   useEffect(() => {
     const params = new URLSearchParams();
     severity.forEach((s) => params.append("severity", s));
@@ -101,7 +93,6 @@ function FindingsPage() {
     setSearchParams(params, { replace: true });
   }, [severity, state, toolType, currentPage, pageSize, selectedFindingId, setSearchParams]);
 
-  // 7) Handlers
   const handleFilterChange = (newSeverity, newState, newToolType) => {
     setSeverity(newSeverity);
     setState(newState);
@@ -115,15 +106,9 @@ function FindingsPage() {
   };
 
   const onRowClick = (record) => {
-    try {
-      if (record && record.id) {
-        setSelectedFindingId(record.id);
-        setDrawerVisible(true);
-      } else {
-        console.error("Row record is missing id:", record);
-      }
-    } catch (error) {
-      console.error("Error in onRowClick:", error);
+    if (record && record.id) {
+      setSelectedFindingId(record.id);
+      setDrawerVisible(true);
     }
   };
 
@@ -189,7 +174,7 @@ function FindingsPage() {
           currentPage={currentPage}
           pageSize={data.data.pageSize || pageSize}
           totalPages={data.data.totalPages}
-          totalHits={data.data.findingsCount || 0}
+          totalHits={data.data.totalHits || 0}
           onChange={handleTableChange}
           onRowClick={onRowClick}
         />
@@ -242,24 +227,23 @@ function FindingsPage() {
                 >
                   Save
                 </Button>
+
               </>
             )}
-            <Typography.Title level={4}>
+            <Typography.Title level={4} style={{ marginTop: "20px" }}>
               {singleFinding.title || "No Title"}
             </Typography.Title>
             <Typography.Paragraph type="secondary">
               {singleFinding.id || "No ID"}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>Tool:</strong>{" "}
-              {convertTextFormat(singleFinding.toolType || "")}
+              <strong>Tool:</strong> {convertTextFormat(singleFinding.toolType || "")}
             </Typography.Paragraph>
             <Typography.Paragraph>
               <strong>Severity:</strong> {singleFinding.severity || "N/A"}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>State:</strong>{" "}
-              {convertTextFormat(singleFinding.state || "")}
+              <strong>State:</strong> {convertTextFormat(singleFinding.state || "")}
             </Typography.Paragraph>
             <Typography.Paragraph>
               <strong>CVSS:</strong> {singleFinding.cvss || "N/A"}
@@ -268,8 +252,7 @@ function FindingsPage() {
               <strong>CVE:</strong> {singleFinding.cve || "N/A"}
             </Typography.Paragraph>
             <Typography.Paragraph>
-              <strong>File Path:</strong>{" "}
-              {singleFinding.filePath || "N/A"}
+              <strong>File Path:</strong> {singleFinding.filePath || "N/A"}
             </Typography.Paragraph>
             <Typography.Paragraph>
               <strong>CWEs:</strong>{" "}

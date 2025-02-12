@@ -13,13 +13,15 @@
     width: 100%;
     height: 100%;
     font-family: "Poppins", "Roboto", sans-serif;
-    overflow: hidden; /* Hide scrollbars to emphasize the layout */
+    /* overflow: hidden;  */
   }
+
   
   .login-page {
     position: relative;
     width: 100%;
     height: 100vh;
+    overflow: hidden;
   }
   
   /* 
@@ -27,7 +29,7 @@
     We create a smooth infinite animation that shifts from one gradient to another.
   */
   .animated-bg {
-    position: absolute;
+    /* position: absolute; */
     top: 0;
     left: 0;
     width: 100%;
