@@ -8,6 +8,7 @@ import OAuth2SuccessPage from "../pages/OAuth2SuccessPage";
 
 // Import our PrivateRoute
 import PrivateRoute from "./PrivateRoute";
+import ProfilePage from "../pages/ProfilePage";
 
 function AppRouter() {
   return (
@@ -28,6 +29,7 @@ function AppRouter() {
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="findings" element={<FindingsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
       {/* Catch-all for unknown routes */}

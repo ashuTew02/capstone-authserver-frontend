@@ -1,18 +1,32 @@
 // src/layouts/Navbar.jsx
 import React, { useState, useEffect } from "react";
-import { Layout, Input, Select, Button, message, Drawer } from "antd";
-import { SearchOutlined, MenuOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  Layout,
+  Input,
+  Select,
+  Button,
+  message,
+  Drawer,
+  Avatar,
+  Dropdown,
+  Menu
+} from "antd";
+import {
+  SearchOutlined,
+  MenuOutlined,
+  CloseOutlined,
+  UserOutlined,
+  DownOutlined,
+  LogoutOutlined
+} from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCredentials, setCredentials } from "../features/auth/authSlice";
-import { initializeAuthData } from "../features/auth/authThunks";
-import { usePostScanMutation } from "../api/scanApi";
-import {
-  authApi,
-  useGetUserTenantsQuery,
-  useSwitchTenantMutation
-} from "../api/authApi";
-import "./layoutStyles.css";
 import { findingsApi } from "../api/findingsApi";
+import { authApi, useGetUserTenantsQuery, useSwitchTenantMutation } from "../api/authApi";
+import { usePostScanMutation } from "../api/scanApi";
+import "./layoutStyles.css";
+import { Link } from "react-router-dom";
+import convertTextFormat from "../utils/convertToProperTextUtil";
 
 const { Header } = Layout;
 const { Option } = Select;
@@ -20,19 +34,18 @@ const { Option } = Select;
 function Navbar() {
   const dispatch = useDispatch();
 
+  // ========== AUTH / TENANT DATA ==========
+  const { user, currentTenant, allTenants } = useSelector((state) => state.auth);
+  const roles = currentTenant ? [currentTenant.roleName] : [];
+
   // ========== SCAN STATES ==========
   const [selectedScanTypes, setSelectedScanTypes] = useState([]);
   const [postScan, { isLoading: isScanLoading }] = usePostScanMutation();
 
   const handleScan = async () => {
     try {
-      const finalScanTypes = selectedScanTypes.includes("ALL")
-        ? ["ALL"]
-        : selectedScanTypes;
-      await postScan({
-        scanTypes: finalScanTypes.length ? finalScanTypes : ["ALL"]
-      }).unwrap();
-
+      const isScanAllTrue = selectedScanTypes.includes("ALL");
+      await postScan({ toolsToScan: selectedScanTypes, scanAll: isScanAllTrue }).unwrap();
       message.success("Scan triggered successfully.");
     } catch (error) {
       message.error(`Failed to trigger scan: ${error?.data?.message || error}`);
@@ -40,54 +53,22 @@ function Navbar() {
     }
   };
 
-  // ========== AUTH / TENANT DATA ==========
-  const { user, currentTenant, allTenants } = useSelector((state) => state.auth);
-  const roles = currentTenant ? [currentTenant.roleName] : [];
+  // ========== Switch Tenant ==========
 
-  // fetch user tenants
   const { data: tenantsData, isSuccess: isTenantsSuccess } = useGetUserTenantsQuery();
-
-  // local state for "which tenant is selected in the dropdown"
   const [selectedTenant, setSelectedTenant] = useState(null);
 
-  useEffect(() => {
-    if (isTenantsSuccess && tenantsData) {
-      // pick the current tenant ID as the initial selected
-      if (currentTenant?.tenantId) {
-        setSelectedTenant(currentTenant.tenantId);
-      } else {
-        // fallback
-        const firstTenant = tenantsData.data[0];
-        if (firstTenant) setSelectedTenant(firstTenant.tenantId);
-      }
-    }
-  }, [isTenantsSuccess, tenantsData, currentTenant]);
-
-  // ========== SWITCH TENANT ==========
-
-  // Using a MUTATION for switching tenant
   const [doSwitchTenant, switchTenantState] = useSwitchTenantMutation();
-  // switchTenantState has isLoading, isSuccess, data, error, etc.
 
   const handleTenantSwitch = async (tenantId) => {
     try {
-      // 1) Call the backend to switch tenant, get new token
       const result = await doSwitchTenant(tenantId).unwrap();
-      // result should be something like: 
-      // { success:true, data: { token: "..." }, ... }
-
       const newToken = result.data.token;
-      // 2) Update Redux state with new token
       dispatch(setCredentials({ token: newToken }));
-      dispatch(findingsApi.util.invalidateTags(['Finding']));
-      dispatch(authApi.util.invalidateTags(['Auth']));
-
-      // dispatch(initializeAuthData());
-
-      // 3) Re-initialize user data so we fetch the new user / currentTenant
-
-
-      // 4) Show success message
+      // Invalidate relevant caches
+      // dispatch(findingsApi.util.invalidateTags(["Finding"]));
+      // dispatch(authApi.util.invalidateTags(["Auth"]));
+      // Force reload to re-init data
       window.location.reload();
       message.success(`Switched to tenant ${tenantId} successfully!`);
     } catch (err) {
@@ -96,21 +77,54 @@ function Navbar() {
     }
   };
 
+  useEffect(() => {
+    if (isTenantsSuccess && tenantsData) {
+      if (currentTenant?.tenantId) {
+        setSelectedTenant(currentTenant.tenantId);
+      } else if (tenantsData.data.length > 0) {
+        setSelectedTenant(tenantsData.data[0].tenantId);
+      }
+    }
+  }, [isTenantsSuccess, tenantsData, currentTenant]);
+
   // ========== LOGOUT ==========
   const handleLogout = () => {
     dispatch(clearCredentials());
     window.location.href = "/login";
   };
 
-  // ========== ROLES ========== 
+  // ========== Roles for scanning =========
   const canScan = roles.includes("ADMIN") || roles.includes("SUPER_ADMIN");
 
   // ========== MOBILE MENU DRAWER ==========
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
+  // ========== Profile Dropdown ==========
+
+  const menuItems = (
+    <Menu style={{ minWidth: 140 }}>
+      <Menu.Item key="role" disabled>
+        {/* <UserOutlined style={{ marginRight: 8 }} /> */}
+        {currentTenant &&convertTextFormat(currentTenant?.roleName) || "No Role"}
+      </Menu.Item>
+      <Menu.Item key="profile">
+        <Link to="/profile">
+          <UserOutlined style={{ marginRight: 8 }} />
+          Profile
+        </Link>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="logout" onClick={handleLogout} danger>
+        <LogoutOutlined style={{ marginRight: 8 }} />
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <Header className="navbar-header">
+      {/* Left side: brand & mobile toggle */}
       <div className="navbar-left">
         <Button
           className="mobile-menu-btn"
@@ -121,20 +135,20 @@ function Navbar() {
         <div className="navbar-title">ArmorCode</div>
       </div>
 
+      {/* Right side: Desktop actions */}
       <div className="navbar-actions desktop-actions">
-        <Input
+        {/* <Input
           prefix={<SearchOutlined style={{ color: "#999" }} />}
           placeholder="Search..."
           className="navbar-search"
-        />
+        /> */}
 
-        {/* Scan if permitted */}
         {canScan && (
           <>
             <Select
               mode="multiple"
               placeholder="Select scan type(s)"
-              style={{ width: 220 }}
+              style={{ width: 200 }}
               value={selectedScanTypes}
               onChange={setSelectedScanTypes}
               maxTagCount="responsive"
@@ -150,17 +164,17 @@ function Navbar() {
               type="primary"
               onClick={handleScan}
               loading={isScanLoading}
-              style={{ marginLeft: 8 }}
             >
               Scan
             </Button>
           </>
         )}
 
-        {/* TENANT DROPDOWN */}
+        {/* Tenant Switch */}
+        <p style={{ marginLeft: 5, marginRight: -10,fontSize: 14.5, fontWeight: 450 }}>Tenant:</p>
         <Select
           value={selectedTenant}
-          style={{ width: 220, marginLeft: 24 }}
+          style={{ width: 180 }}
           onChange={(val) => {
             setSelectedTenant(val);
             handleTenantSwitch(val);
@@ -180,12 +194,33 @@ function Navbar() {
           })}
         </Select>
 
-        <Button type="default" onClick={handleLogout} style={{ marginLeft: 24 }}>
-          Logout
-        </Button>
+        {/* Profile Avatar & Dropdown */}
+        <Dropdown overlay={menuItems} trigger={["click"]}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              padding: "0 8px",
+            }}
+          >
+            <Avatar
+              src={user?.imageUrl}
+              style={{ marginRight: 8 }}
+              icon={!user?.imageUrl && <UserOutlined />}
+            />
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                <p style={{ margin: 0, fontSize: 14.5, fontWeight: 450 }}>{user?.name || "User"}</p>
+                <p style={{ margin: 0, fontSize: 11, color: "gray" }}>
+                  {currentTenant && convertTextFormat(currentTenant?.roleName) || "No Role"}
+                </p>
+              </div>
+            <DownOutlined style={{ marginLeft: 8, fontSize: 13 }} />
+          </div>
+        </Dropdown>
       </div>
 
-      {/* MOBILE DRAWER */}
+      {/* Mobile Drawer */}
       <Drawer
         title="Menu"
         placement="right"
@@ -193,8 +228,7 @@ function Navbar() {
         open={mobileMenuOpen}
         className="mobile-drawer"
       >
-        {/* Similar items as above but for mobile */}
-        {/* ... */}
+        {/* Here you can replicate the items for mobile if you want */}
       </Drawer>
     </Header>
   );

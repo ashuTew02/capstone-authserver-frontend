@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Layout, Menu } from "antd";
-import { DashboardOutlined, FileSearchOutlined } from "@ant-design/icons";
+import { DashboardOutlined, FileSearchOutlined, UserOutlined } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import "./layoutStyles.css";
 
@@ -48,6 +48,14 @@ function Sidebar() {
           className="sidebar-menu-item"
         >
           <Link to="/findings">Findings</Link>
+        </Menu.Item>
+
+        <Menu.Item
+          key="/profile"
+          icon={<UserOutlined />}
+          className="sidebar-menu-item"
+        >
+          <Link to="/profile">Profile</Link>
         </Menu.Item>
       </Menu>
     </Sider>
