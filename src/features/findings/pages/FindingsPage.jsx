@@ -130,7 +130,7 @@ function FindingsPage() {
       setTimeout(() => {
         refetchSingleFinding();
         refetchFindings();
-      }, 1200);
+      }, 5000);
       message.success("Finding state updated successfully!");
     } catch (err) {
       const errMsg =
@@ -158,7 +158,7 @@ function FindingsPage() {
         </div>
       )}
 
-      {isError && (
+      {/* {isError && (
         <Alert
           message="Error"
           description={error?.data?.message || "Could not fetch findings."}
@@ -166,7 +166,7 @@ function FindingsPage() {
           showIcon
           className="findings-error-alert"
         />
-      )}
+      )} */}
 
       {data && data.data && (
         <FindingsTable

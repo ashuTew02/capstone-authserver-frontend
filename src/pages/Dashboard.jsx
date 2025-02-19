@@ -290,9 +290,11 @@ function Dashboard() {
           <Card title="Findings by Tool" className="chart-card" hoverable>
             {isToolDistLoading ? (
               <Spin />
-            ) : isToolDistError ? (
-              <div style={{ color: "red" }}>Error loading tool distribution.</div>
-            ) : (
+            ) : isToolDistError ? 
+            (
+              <div style={{ }}>No Data to display.</div>
+            ) 
+            : (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie

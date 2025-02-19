@@ -45,7 +45,11 @@ function Navbar() {
   const handleScan = async () => {
     try {
       const isScanAllTrue = selectedScanTypes.includes("ALL");
-      await postScan({ toolsToScan: selectedScanTypes, scanAll: isScanAllTrue }).unwrap();
+      if(!isScanAllTrue) {
+        await postScan({ toolsToScan: selectedScanTypes, scanAll: isScanAllTrue }).unwrap();
+      } else {
+        await postScan({ scanAll: isScanAllTrue }).unwrap();
+      }
       message.success("Scan triggered successfully.");
     } catch (error) {
       message.error(`Failed to trigger scan: ${error?.data?.message || error}`);
