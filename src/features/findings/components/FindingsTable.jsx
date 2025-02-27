@@ -1,4 +1,6 @@
-import { Table, Tag } from "antd";
+import React from "react";
+import { Table, Tag, Button } from "antd";
+import { LinkOutlined } from "@ant-design/icons";
 import "./findingsComponents.css";
 import convertTextFormat from "../../../utils/convertToProperTextUtil";
 import truncateText from "../../../utils/truncateTextUtil";
@@ -30,7 +32,7 @@ function FindingsTable({
   onChange,
   onRowClick,
 }) {
-  const handleTableChange = (pagination, filters, sorter) => {
+  const handleTableChange = (pagination) => {
     onChange(pagination.current, pagination.pageSize);
   };
 
@@ -39,6 +41,7 @@ function FindingsTable({
       title: "ID",
       dataIndex: "id",
       key: "id",
+      width: 150,
       sorter: (a, b) => a.id.localeCompare(b.id),
       sortDirections: ["ascend", "descend"],
       render: (id, record) => {
@@ -55,55 +58,58 @@ function FindingsTable({
           </a>
         );
       },
-      width: 150,
     },
     {
       title: "Updated At",
       dataIndex: "updatedAt",
       key: "updatedAt",
+      width: 120,
       sorter: (a, b) => a.updatedAt.localeCompare(b.updatedAt),
       sortDirections: ["ascend", "descend"],
       render: (updatedAt) => {
+        // Example: convert "IST" to "GMT+0530" for correct local parse
         const formattedDateStr = updatedAt.replace("IST", "GMT+0530");
         const jsDate = new Date(formattedDateStr);
         return <span>{jsDate.toLocaleString("en-IN")}</span>;
       },
-      width: 120,
     },
     {
       title: "Tool",
       dataIndex: "toolType",
       key: "toolType",
+      width: 120,
       sorter: (a, b) =>
         convertTextFormat(a.toolType).localeCompare(convertTextFormat(b.toolType)),
       sortDirections: ["ascend", "descend"],
-      render: (tool) => <span className="table-title">{convertTextFormat(tool)}</span>,
-      width: 120,
+      render: (tool) => (
+        <span className="table-title">{convertTextFormat(tool)}</span>
+      ),
     },
     {
       title: "Title",
       dataIndex: "title",
       key: "title",
+      width: 180,
       sorter: (a, b) => a.title.localeCompare(b.title),
       sortDirections: ["ascend", "descend"],
       render: (text) => (
         <span className="table-title">{truncateText(text, 30)}</span>
       ),
-      width: 180,
     },
     {
       title: "State",
       dataIndex: "state",
       key: "state",
+      width: 100,
       sorter: (a, b) => a.state.localeCompare(b.state),
       sortDirections: ["ascend", "descend"],
       render: (st) => <Tag color="geekblue">{convertTextFormat(st)}</Tag>,
-      width: 100,
     },
     {
       title: "Severity",
       dataIndex: "severity",
       key: "severity",
+      width: 100,
       sorter: (a, b) => severityToNumber(a.severity) - severityToNumber(b.severity),
       sortDirections: ["ascend", "descend"],
       render: (severity) => {
@@ -115,16 +121,42 @@ function FindingsTable({
         else if (severity === "INFO") color = "cyan";
         return <Tag color={color}>{severity}</Tag>;
       },
-      width: 100,
     },
     {
       title: "Description",
       dataIndex: "desc",
       key: "desc",
+      width: 300,
       sorter: (a, b) => a.desc.localeCompare(b.desc),
       sortDirections: ["ascend", "descend"],
-      render: (text) => <span>{text ? truncateText(text, 120) : ""}</span>,
-      width: 500,
+      render: (text) => <span>{text ? truncateText(text, 70) : ""}</span>,
+    },
+    // -------------------------
+    // NEW Ticket Column at the END
+    // -------------------------
+    {
+      title: "Ticket",
+      dataIndex: "ticketId",
+      key: "ticketId",
+      width: 120,
+      render: (ticketId) => {
+        if (!ticketId) {
+          return <span style={{ color: "#999" }}>No Ticket</span>;
+        }
+        return (
+          <Button
+            size="small"
+            type="primary"
+            icon={<LinkOutlined />}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click from opening the drawer
+              window.location.href = `/tickets?ticketId=${ticketId}`;
+            }}
+          >
+            {ticketId}
+          </Button>
+        );
+      },
     },
   ];
 
@@ -144,7 +176,8 @@ function FindingsTable({
           pageSizeOptions: ["10", "20", "50", "100"],
         }}
         onChange={handleTableChange}
-        scroll={{ y: "52vh" }}
+        // Allows horizontal scrolling only if total columns exceed the container
+        scroll={{ x: "max-content", y: "52vh" }}
         onRow={(record) => ({
           onClick: () => onRowClick && onRowClick(record),
         })}

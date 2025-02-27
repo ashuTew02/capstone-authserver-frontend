@@ -1,13 +1,13 @@
-/* Page container */
-.findings-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin: 16px;
-  animation: fadeInUp 0.6s ease forwards;
-  opacity: 0;
-}
+/* 
+   findingsComponents.css
+   ======================
+   This CSS file applies advanced styling and animations
+   for the Findings page, filter, table, and drawer content.
+*/
 
+/* ------------------------------------- */
+/* Global fade-in animation for the page */
+/* ------------------------------------- */
 @keyframes fadeInUp {
   0% {
     transform: translateY(10px);
@@ -19,93 +19,190 @@
   }
 }
 
-/* Title styling */
-.findings-page-title {
-  margin-bottom: 0 !important;
-  color: #35198e;
-  font-weight: 700;
+/* 
+   PAGE CONTAINER 
+   with a fancy gradient background, 
+   and a subtle fade-in animation 
+*/
+.findings-page-container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #ffffff 0%, #f8f8fc 100%);
+  padding: 24px;
+  opacity: 0; /* initial hidden state for fade-in */
+  animation: fadeInUp 0.6s ease forwards;
 }
 
-/* Loading spinner container */
+/* Page Header */
+.findings-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.findings-page-title {
+  margin: 0 !important;
+  font-weight: 700;
+  color: #35198e;
+  text-shadow: 1px 1px 2px rgba(53, 25, 142, 0.2);
+}
+
+/* ------------------------------------- */
+/* FILTER WRAPPER */
+/* ------------------------------------- */
+.findings-filter-container {
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  animation: fadeInUp 0.4s ease forwards;
+  opacity: 0;
+}
+
+/* The Filter Form itself */
+.findings-filter-wrapper {
+  width: 100%;
+}
+
+.findings-filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ------------------------------------- */
+/* LOADING SPINNER */
+/* ------------------------------------- */
 .findings-loading {
-  margin-top: 32px;
+  margin-top: 48px;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-/* Error alert margin */
+/* ------------------------------------- */
+/* ERROR ALERT */
+/* ------------------------------------- */
 .findings-error-alert {
   margin-top: 16px;
 }
 
-/* Filter form items spacing */
-.ant-form-inline > .ant-form-item {
-  margin-right: 16px;
-  margin-bottom: 8px;
-}
-
-/* Table container */
+/* ------------------------------------- */
+/* TABLE */
+/* ------------------------------------- */
 .findings-table-container {
   margin-top: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
   background: #fff;
-  /* overflow: hidden;  */
-  animation: fadeInTable 0.5s ease forwards;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
   opacity: 0;
-}
-
-@keyframes fadeInTable {
-  0% {
-    transform: translateY(10px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.table-title {
-  font-weight: 600;
-  color: #333;
-  text-decoration: none;
-  cursor: pointer;
+  animation: fadeInUp 0.4s ease forwards;
 }
 
 /* Table row hover effect */
 .ant-table-tbody > tr:hover {
-  background-color: #f5f5f5 !important;
+  background-color: #fafafa !important;
   cursor: pointer;
 }
 
-/* Drawer: let’s add some subtle animation from the right. 
-   (Antd already has a default transition, but we can override or enhance) */
-.ant-drawer.ant-drawer-open {
-  animation: slideDrawer 0.3s ease forwards;
+/* Table ID/Title styling */
+.table-title {
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.table-title:hover {
+  color: #35198e;
+  text-decoration: underline;
 }
 
-@keyframes slideDrawer {
-  0% {
-    transform: translateX(100%);
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateX(0);
-    opacity: 1;
-  }
+/* ------------------------------------- */
+/* DRAWER */
+/* ------------------------------------- */
+.finding-details-drawer .ant-drawer-content {
+  border-radius: 12px 0 0 12px;
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.07);
+  background: #fefefe;
+}
+
+/* Drawer Loading Spinner */
+.drawer-loading {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+/* Drawer Content */
+.drawer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-bottom: 24px;
+}
+
+/* State Update section (only for SUPER_ADMIN) */
+.finding-state-update-section {
+  background-color: #faf9ff;
+  border: 1px solid #e8e2fe;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.state-update-controls {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  gap: 10px;
+}
+
+.save-state-button {
+  border-radius: 4px;
+}
+
+/* Ticket actions container */
+.ticket-actions-container {
+  background-color: #f9f9f9;
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* Main Finding info block */
+.finding-main-info {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Description & Suggestions blocks */
+.finding-description,
+.finding-suggestions {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
 /* Markdown content styling */
 .markdown-content {
-  background: #f9f9f9;
+  background: #fafafa;
   padding: 12px;
   border-radius: 6px;
   margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.6;
 }
-
 .markdown-content h1,
 .markdown-content h2,
 .markdown-content h3 {
   color: #35198e;
+}
+.markdown-content p {
+  margin-bottom: 8px;
 }

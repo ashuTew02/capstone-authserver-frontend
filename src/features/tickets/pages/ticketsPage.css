@@ -1,0 +1,181 @@
+/* 
+   ticketsPage.css
+   ===============
+
+   This CSS focuses on making the page look vibrant, clean, and professional. 
+   - Subtle animations
+   - Soft shadows
+   - Refined spacing and layout
+*/
+
+/* Container & Page Animation */
+.tickets-page-container {
+    padding: 24px;
+    background: linear-gradient(to bottom right, #fdfdfd 0%, #fafafa 100%);
+    min-height: 100vh;
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+  }
+  
+  @keyframes fadeInUp {
+    0% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* Page Header Styles */
+  .tickets-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .tickets-page-title {
+    margin: 0;
+    color: #333;
+    font-weight: 700;
+  }
+  
+  .create-ticket-button {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+    border-radius: 6px;
+  }
+  
+  /* Error Text */
+  .error-text {
+    display: block;
+    margin-bottom: 16px;
+    color: #ff4d4f;
+    font-weight: 500;
+  }
+  
+  /* Table Container */
+  .tickets-table-container {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tickets-table {
+    /* Remove default antd table background to let our container handle it */
+    background: transparent;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  /* On row hover, add a subtle highlight */
+  .tickets-table .ant-table-tbody > tr:hover > td {
+    background-color: #f5f5f5;
+  }
+  
+  /* CREATE TICKET MODAL */
+  .create-ticket-modal .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  .create-ticket-modal .ant-modal-header {
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .create-ticket-modal .ant-modal-title {
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .create-ticket-modal .ant-modal-body {
+    padding-top: 16px;
+  }
+  
+  .create-ticket-modal .ant-modal-footer {
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .form-field {
+    margin-bottom: 16px;
+  }
+  
+  .form-input {
+    margin-top: 4px;
+  }
+  
+  /* Linked Finding Info Box */
+  .linked-finding-info {
+    background-color: #fafafa;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    border: 1px solid #d9d9d9;
+  }
+  
+  /* TICKET DETAILS DRAWER */
+  .ticket-details-drawer {
+    .ant-drawer-content {
+      border-radius: 12px 0 0 12px;
+      box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+    }
+  
+    .ant-drawer-header {
+      background-color: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+    }
+  
+    .ant-drawer-title {
+      font-weight: 600;
+      font-size: 18px;
+    }
+  }
+  
+  .drawer-loading {
+    margin-top: 16px;
+    font-weight: 500;
+    color: #999;
+    text-align: center;
+  }
+  
+  .drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 16px 0;
+  }
+  
+  /* Ticket Details Section */
+  .ticket-details-section {
+    background-color: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .ticket-details-field {
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .drawer-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding: 0 16px;
+  }
+  
+  .view-finding-button,
+  .mark-done-button {
+    border-radius: 6px;
+    height: 40px;
+    padding: 0 16px;
+    font-weight: 500;
+  }
+  

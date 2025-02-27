@@ -1,4 +1,3 @@
-// src/layouts/Navbar.jsx
 import React, { useState, useEffect } from "react";
 import {
   Layout,
@@ -9,7 +8,7 @@ import {
   Drawer,
   Avatar,
   Dropdown,
-  Menu
+  Menu,
 } from "antd";
 import {
   SearchOutlined,
@@ -17,12 +16,16 @@ import {
   CloseOutlined,
   UserOutlined,
   DownOutlined,
-  LogoutOutlined
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCredentials, setCredentials } from "../features/auth/authSlice";
 import { findingsApi } from "../api/findingsApi";
-import { authApi, useGetUserTenantsQuery, useSwitchTenantMutation } from "../api/authApi";
+import {
+  authApi,
+  useGetUserTenantsQuery,
+  useSwitchTenantMutation,
+} from "../api/authApi";
 import { usePostScanMutation } from "../api/scanApi";
 import "./layoutStyles.css";
 import { Link } from "react-router-dom";
@@ -45,7 +48,7 @@ function Navbar() {
   const handleScan = async () => {
     try {
       const isScanAllTrue = selectedScanTypes.includes("ALL");
-      if(!isScanAllTrue) {
+      if (!isScanAllTrue) {
         await postScan({ toolsToScan: selectedScanTypes, scanAll: isScanAllTrue }).unwrap();
       } else {
         await postScan({ scanAll: isScanAllTrue }).unwrap();
@@ -58,10 +61,8 @@ function Navbar() {
   };
 
   // ========== Switch Tenant ==========
-
   const { data: tenantsData, isSuccess: isTenantsSuccess } = useGetUserTenantsQuery();
   const [selectedTenant, setSelectedTenant] = useState(null);
-
   const [doSwitchTenant, switchTenantState] = useSwitchTenantMutation();
 
   const handleTenantSwitch = async (tenantId) => {
@@ -69,10 +70,10 @@ function Navbar() {
       const result = await doSwitchTenant(tenantId).unwrap();
       const newToken = result.data.token;
       dispatch(setCredentials({ token: newToken }));
-      // Invalidate relevant caches
+      // Invalidate relevant caches if needed
       // dispatch(findingsApi.util.invalidateTags(["Finding"]));
       // dispatch(authApi.util.invalidateTags(["Auth"]));
-      // Force reload to re-init data
+      // Force reload
       window.location.reload();
       message.success(`Switched to tenant ${tenantId} successfully!`);
     } catch (err) {
@@ -97,7 +98,7 @@ function Navbar() {
     window.location.href = "/login";
   };
 
-  // ========== Roles for scanning =========
+  // ========== Roles for scanning ==========
   const canScan = roles.includes("ADMIN") || roles.includes("SUPER_ADMIN");
 
   // ========== MOBILE MENU DRAWER ==========
@@ -109,8 +110,7 @@ function Navbar() {
   const menuItems = (
     <Menu style={{ minWidth: 140 }}>
       <Menu.Item key="role" disabled>
-        {/* <UserOutlined style={{ marginRight: 8 }} /> */}
-        {currentTenant &&convertTextFormat(currentTenant?.roleName) || "No Role"}
+        {currentTenant && convertTextFormat(currentTenant?.roleName) || "No Role"}
       </Menu.Item>
       <Menu.Item key="profile">
         <Link to="/profile">
@@ -141,11 +141,13 @@ function Navbar() {
 
       {/* Right side: Desktop actions */}
       <div className="navbar-actions desktop-actions">
-        {/* <Input
+        {/* If you want the search bar visible, uncomment below
+        <Input
           prefix={<SearchOutlined style={{ color: "#999" }} />}
           placeholder="Search..."
           className="navbar-search"
-        /> */}
+        />
+        */}
 
         {canScan && (
           <>
@@ -164,18 +166,16 @@ function Navbar() {
               <Option value="SECRET_SCAN">Secret Scan</Option>
             </Select>
 
-            <Button
-              type="primary"
-              onClick={handleScan}
-              loading={isScanLoading}
-            >
+            <Button type="primary" onClick={handleScan} loading={isScanLoading}>
               Scan
             </Button>
           </>
         )}
 
         {/* Tenant Switch */}
-        <p style={{ marginLeft: 5, marginRight: -10,fontSize: 14.5, fontWeight: 450 }}>Tenant:</p>
+        <p style={{ marginLeft: 5, marginRight: -10, fontSize: 14.5, fontWeight: 450 }}>
+          Tenant:
+        </p>
         <Select
           value={selectedTenant}
           style={{ width: 180 }}
@@ -187,9 +187,7 @@ function Navbar() {
         >
           {allTenants.map((t) => {
             const isDefault = user && user.defaultTenantId === t.tenantId;
-            const label = isDefault
-              ? `${t.tenantName} (default)`
-              : t.tenantName;
+            const label = isDefault ? `${t.tenantName} (default)` : t.tenantName;
             return (
               <Select.Option key={t.tenantId} value={t.tenantId}>
                 {label}
@@ -213,12 +211,14 @@ function Navbar() {
               style={{ marginRight: 8 }}
               icon={!user?.imageUrl && <UserOutlined />}
             />
-              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-                <p style={{ margin: 0, fontSize: 14.5, fontWeight: 450 }}>{user?.name || "User"}</p>
-                <p style={{ margin: 0, fontSize: 11, color: "gray" }}>
-                  {currentTenant && convertTextFormat(currentTenant?.roleName) || "No Role"}
-                </p>
-              </div>
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+              <p style={{ margin: 0, fontSize: 14.5, fontWeight: 450 }}>
+                {user?.name || "User"}
+              </p>
+              <p style={{ margin: 0, fontSize: 11, color: "gray" }}>
+                {currentTenant && convertTextFormat(currentTenant?.roleName) || "No Role"}
+              </p>
+            </div>
             <DownOutlined style={{ marginLeft: 8, fontSize: 13 }} />
           </div>
         </Dropdown>
@@ -232,7 +232,7 @@ function Navbar() {
         open={mobileMenuOpen}
         className="mobile-drawer"
       >
-        {/* Here you can replicate the items for mobile if you want */}
+        {/* Replicate any needed menu items here for mobile */}
       </Drawer>
     </Header>
   );

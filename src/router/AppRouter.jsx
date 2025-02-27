@@ -9,6 +9,8 @@ import OAuth2SuccessPage from "../pages/OAuth2SuccessPage";
 // Import our PrivateRoute
 import PrivateRoute from "./PrivateRoute";
 import ProfilePage from "../pages/ProfilePage";
+import TicketsPage from "../features/tickets/pages/TicketsPage";
+import RunbooksPage from "../features/runbooks/pages/RunbooksPage";
 
 function AppRouter() {
   return (
@@ -30,6 +32,8 @@ function AppRouter() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="findings" element={<FindingsPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="/tickets" element={<TicketsPage />}/>
+        <Route path="runbooks" element={<RunbooksPage />} />
       </Route>
 
       {/* Catch-all for unknown routes */}

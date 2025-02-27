@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Typography, Spin, Alert, Drawer, Button, message, Select } from "antd";
+import {
+  Typography,
+  Spin,
+  Alert,
+  Drawer,
+  Button,
+  message,
+  Select,
+} from "antd";
 import { useSearchParams } from "react-router-dom";
 import FindingsFilter from "../components/FindingsFilter";
 import FindingsTable from "../components/FindingsTable";
@@ -44,7 +52,7 @@ function FindingsPage() {
   const [selectedFindingId, setSelectedFindingId] = useState(initialFindingId);
   const [drawerVisible, setDrawerVisible] = useState(Boolean(initialFindingId));
 
-  const roles  = useSelector((state) => [state.auth?.currentTenant?.roleName]);
+  const roles = useSelector((s) => [s.auth?.currentTenant?.roleName]);
 
   const {
     data,
@@ -69,9 +77,11 @@ function FindingsPage() {
   } = useGetFindingByIdQuery(selectedFindingId, {
     skip: !selectedFindingId,
   });
+
   const singleFinding = singleFindingData?.data;
 
-  const [updateStateMutation, { isLoading: isUpdatingState }] = useUpdateStateMutation();
+  const [updateStateMutation, { isLoading: isUpdatingState }] =
+    useUpdateStateMutation();
   const [nextState, setNextState] = useState("");
 
   useEffect(() => {
@@ -91,7 +101,15 @@ function FindingsPage() {
       params.set("findingId", selectedFindingId);
     }
     setSearchParams(params, { replace: true });
-  }, [severity, state, toolType, currentPage, pageSize, selectedFindingId, setSearchParams]);
+  }, [
+    severity,
+    state,
+    toolType,
+    currentPage,
+    pageSize,
+    selectedFindingId,
+    setSearchParams,
+  ]);
 
   const handleFilterChange = (newSeverity, newState, newToolType) => {
     setSeverity(newSeverity);
@@ -140,25 +158,32 @@ function FindingsPage() {
   }
 
   return (
-    <div className="findings-page">
-      <Title level={2} className="findings-page-title">
-        Findings
-      </Title>
+    <div className="findings-page-container">
+      <div className="findings-page-header">
+        <Title level={2} className="findings-page-title">
+          Findings
+        </Title>
+      </div>
 
-      <FindingsFilter
-        onFilterChange={handleFilterChange}
-        defaultSeverity={severity}
-        defaultState={state}
-        defaultTool={toolType}
-      />
+      {/* FILTER */}
+      <div className="findings-filter-container">
+        <FindingsFilter
+          onFilterChange={handleFilterChange}
+          defaultSeverity={severity}
+          defaultState={state}
+          defaultTool={toolType}
+        />
+      </div>
 
+      {/* LOADING / ERROR / TABLE */}
       {isLoading && (
         <div className="findings-loading">
           <Spin size="large" tip="Loading Findings..." />
         </div>
       )}
 
-      {/* {isError && (
+      {/* Uncomment if you'd like to display a global error alert: 
+      {isError && (
         <Alert
           message="Error"
           description={error?.data?.message || "Could not fetch findings."}
@@ -180,15 +205,22 @@ function FindingsPage() {
         />
       )}
 
+      {/* DRAWER (Single Finding Details) */}
       <Drawer
         title="Finding Details"
         placement="right"
-        width={600}
+        width={640}
         onClose={handleCloseDrawer}
         open={drawerVisible}
         destroyOnClose
+        className="finding-details-drawer"
       >
-        {isSingleFindingLoading && <Spin size="large" tip="Loading..." />}
+        {isSingleFindingLoading && (
+          <div className="drawer-loading">
+            <Spin size="large" tip="Loading Finding..." />
+          </div>
+        )}
+
         {isSingleFindingError && (
           <Alert
             message="Error"
@@ -201,97 +233,150 @@ function FindingsPage() {
             style={{ marginBottom: 16 }}
           />
         )}
+
         {singleFinding && (
-          <div>
+          <div className="drawer-content">
+            {/* STATE UPDATE (Visible for SUPER_ADMIN) */}
             {roles.includes("SUPER_ADMIN") && (
-              <>
+              <div className="finding-state-update-section">
                 <Typography.Title level={5} style={{ marginTop: 0 }}>
                   Update State
                 </Typography.Title>
-                <Select
-                  style={{ width: "50%" }}
-                  value={convertTextFormat(nextState || "")}
-                  onChange={setNextState}
-                >
-                  {getPossibleNextStates(singleFinding.state || "").map((st) => (
-                    <Select.Option key={st} value={st}>
-                      {convertTextFormat(st)}
-                    </Select.Option>
-                  ))}
-                </Select>
+                <div className="state-update-controls">
+                  <Select
+                    style={{ width: "50%" }}
+                    value={convertTextFormat(nextState || "")}
+                    onChange={setNextState}
+                    className="state-select"
+                  >
+                    {getPossibleNextStates(singleFinding.state || "").map(
+                      (st) => (
+                        <Select.Option key={st} value={st}>
+                          {convertTextFormat(st)}
+                        </Select.Option>
+                      )
+                    )}
+                  </Select>
+                  <Button
+                    type="primary"
+                    onClick={handleSaveState}
+                    loading={isUpdatingState}
+                    className="save-state-button"
+                  >
+                    Save
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* TICKET ACTIONS */}
+            <div className="ticket-actions-container">
+              <Typography.Title level={5} style={{ marginBottom: 8 }}>
+                Ticket Actions
+              </Typography.Title>
+              {singleFinding.ticketId ? (
                 <Button
                   type="primary"
-                  onClick={handleSaveState}
-                  loading={isUpdatingState}
-                  style={{ marginTop: 5, marginLeft: 10 }}
+                  onClick={() => {
+                    // Navigate to Tickets page, open the drawer for this ticket
+                    window.location.href = `/tickets?ticketId=${singleFinding.ticketId}`;
+                  }}
                 >
-                  Save
+                  View Ticket
                 </Button>
-
-              </>
-            )}
-            <Typography.Title level={4} style={{ marginTop: "20px" }}>
-              {singleFinding.title || "No Title"}
-            </Typography.Title>
-            <Typography.Paragraph type="secondary">
-              {singleFinding.id || "No ID"}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Tool:</strong> {convertTextFormat(singleFinding.toolType || "")}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>Severity:</strong> {singleFinding.severity || "N/A"}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>State:</strong> {convertTextFormat(singleFinding.state || "")}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>CVSS:</strong> {singleFinding.cvss || "N/A"}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>CVE:</strong> {singleFinding.cve || "N/A"}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>File Path:</strong> {singleFinding.filePath || "N/A"}
-            </Typography.Paragraph>
-            <Typography.Paragraph>
-              <strong>CWEs:</strong>{" "}
-              {(!singleFinding.cwes || singleFinding.cwes.length === 0)
-                ? "N/A"
-                : singleFinding.cwes.map((cwe, idx) => {
-                    const match = cwe.match(/^CWE-(\d+)$/);
-                    if (match) {
-                      const cweNumber = match[1].replace(/^0+/, "");
-                      const isLast = idx === singleFinding.cwes.length - 1;
-                      return (
-                        <a
-                          key={`${cwe}-${idx}`}
-                          href={`https://cwe.mitre.org/data/definitions/${cweNumber}.html`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          {cwe}
-                          {!isLast && ", "}
-                        </a>
-                      );
-                    }
-                    return (
-                      <span key={`${cwe}-${idx}`} style={{ marginRight: 8 }}>
-                        {cwe}
-                      </span>
+              ) : (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    // Navigate to Tickets page, open create modal, prefill fields
+                    const summary = encodeURIComponent(
+                      singleFinding.title || ""
                     );
-                  })}
-            </Typography.Paragraph>
-            <Typography.Title level={5} style={{ marginTop: 16 }}>
-              Description
-            </Typography.Title>
-            <div className="markdown-content">
-              <ReactMarkdown>
-                {singleFinding.desc || "No description available."}
-              </ReactMarkdown>
+                    const description = encodeURIComponent(
+                      singleFinding.desc || ""
+                    );
+                    window.location.href = `/tickets?createTicket=1&findingId=${singleFinding.id}&summary=${summary}&description=${description}`;
+                  }}
+                >
+                  Create Ticket
+                </Button>
+              )}
             </div>
+
+            {/* FINDING DETAILS */}
+            <div className="finding-main-info">
+              <Typography.Title level={4} style={{ marginTop: "20px" }}>
+                {singleFinding.title || "No Title"}
+              </Typography.Title>
+              <Typography.Paragraph type="secondary">
+                {singleFinding.id || "No ID"}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>Tool:</strong>{" "}
+                {convertTextFormat(singleFinding.toolType || "")}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>Severity:</strong> {singleFinding.severity || "N/A"}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>State:</strong>{" "}
+                {convertTextFormat(singleFinding.state || "")}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>CVSS:</strong> {singleFinding.cvss || "N/A"}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>CVE:</strong> {singleFinding.cve || "N/A"}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>File Path:</strong>{" "}
+                {singleFinding.filePath || "N/A"}
+              </Typography.Paragraph>
+              <Typography.Paragraph>
+                <strong>CWEs:</strong>{" "}
+                {!singleFinding.cwes || singleFinding.cwes.length === 0
+                  ? "N/A"
+                  : singleFinding.cwes.map((cwe, idx) => {
+                      const match = cwe.match(/^CWE-(\d+)$/);
+                      if (match) {
+                        const cweNumber = match[1].replace(/^0+/, "");
+                        const isLast = idx === singleFinding.cwes.length - 1;
+                        return (
+                          <a
+                            key={`${cwe}-${idx}`}
+                            href={`https://cwe.mitre.org/data/definitions/${cweNumber}.html`}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {cwe}
+                            {!isLast && ", "}
+                          </a>
+                        );
+                      }
+                      return (
+                        <span key={`${cwe}-${idx}`} style={{ marginRight: 8 }}>
+                          {cwe}
+                        </span>
+                      );
+                    })}
+              </Typography.Paragraph>
+            </div>
+
+            {/* DESCRIPTION */}
+            <div className="finding-description">
+              <Typography.Title level={5} style={{ marginTop: 16 }}>
+                Description
+              </Typography.Title>
+              <div className="markdown-content">
+                <ReactMarkdown>
+                  {singleFinding.desc || "No description available."}
+                </ReactMarkdown>
+              </div>
+            </div>
+
+            {/* SUGGESTIONS */}
             {singleFinding.suggestions && (
-              <>
+              <div className="finding-suggestions">
                 <Typography.Title level={5} style={{ marginTop: 16 }}>
                   Suggestions
                 </Typography.Title>
@@ -300,7 +385,7 @@ function FindingsPage() {
                     {singleFinding.suggestions || "No suggestions available."}
                   </ReactMarkdown>
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
