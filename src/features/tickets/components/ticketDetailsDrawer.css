@@ -1,0 +1,72 @@
+/* ticketDetailsDrawer.css */
+
+/* Subtle fade-slide in for the drawer content */
+@keyframes fadeSlideIn {
+    0% {
+      transform: translateX(50px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .ticket-details-drawer .ant-drawer-content {
+    border-radius: 12px 0 0 12px;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.05);
+    animation: fadeSlideIn 0.4s ease forwards;
+  }
+  
+  .ticket-details-drawer .ant-drawer-header {
+    background-color: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .ticket-details-drawer .ant-drawer-title {
+    font-weight: 600;
+    font-size: 18px;
+  }
+  
+  .drawer-loading {
+    margin-top: 16px;
+    font-weight: 500;
+    color: #999;
+    text-align: center;
+  }
+  
+  /* Main content in drawer */
+  .drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 16px 0;
+  }
+  
+  /* The "TicketDetailsKeyValueTable" can have a container if needed, 
+     but by default it's just the AntD "Descriptions" component. */
+  
+  /* Drawer footer (actions) */
+  .drawer-footer {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding: 0 16px;
+  }
+  
+  .view-finding-button,
+  .mark-done-button {
+    border-radius: 6px;
+    height: 40px;
+    padding: 0 16px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .view-finding-button:hover,
+  .mark-done-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  

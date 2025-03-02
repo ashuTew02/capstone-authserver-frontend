@@ -1,0 +1,34 @@
+ 
+  /*
+ .runbook-view-drawer .ant-drawer-content-wrapper {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .runbook-view-drawer .ant-drawer-content-wrapper:not(.ant-drawer-content-wrapper-hide) {
+    transform: translateX(0);
+    opacity: 1;
+  }
+ 
+  
+  .runbook-view-drawer
+    .ant-drawer-content-wrapper.ant-drawer-content-wrapper-hide {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+   */
+  /* Loading spinner area */
+  .drawer-loading {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  /* Drawer content spacing */
+  .drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-bottom: 24px;
+  }
+  

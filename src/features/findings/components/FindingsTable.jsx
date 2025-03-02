@@ -1,11 +1,10 @@
 import React from "react";
 import { Table, Tag, Button } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
-import "./findingsComponents.css";
+import "./findingsTable.css"; // keep table-specific CSS here
 import convertTextFormat from "../../../utils/convertToProperTextUtil";
 import truncateText from "../../../utils/truncateTextUtil";
 
-// Helper for severity sorting
 function severityToNumber(sev) {
   switch (sev) {
     case "CRITICAL":
@@ -46,16 +45,20 @@ function FindingsTable({
       sortDirections: ["ascend", "descend"],
       render: (id, record) => {
         const truncatedId = truncateText(id, 12);
-        return (
+        return record?.toolAdditionalProperties?.html_url ? (
           <a
             onClick={(e) => e.stopPropagation()}
-            href={record.toolAdditionalProperties?.html_url}
+            href={record.toolAdditionalProperties.html_url}
             target="_blank"
             rel="noreferrer"
             className="table-title"
           >
             {truncatedId}
           </a>
+        ) : (
+          <span className="table-title" onClick={(e) => e.stopPropagation()}>
+            {truncatedId}
+          </span>
         );
       },
     },
@@ -67,7 +70,6 @@ function FindingsTable({
       sorter: (a, b) => a.updatedAt.localeCompare(b.updatedAt),
       sortDirections: ["ascend", "descend"],
       render: (updatedAt) => {
-        // Example: convert "IST" to "GMT+0530" for correct local parse
         const formattedDateStr = updatedAt.replace("IST", "GMT+0530");
         const jsDate = new Date(formattedDateStr);
         return <span>{jsDate.toLocaleString("en-IN")}</span>;
@@ -110,7 +112,8 @@ function FindingsTable({
       dataIndex: "severity",
       key: "severity",
       width: 100,
-      sorter: (a, b) => severityToNumber(a.severity) - severityToNumber(b.severity),
+      sorter: (a, b) =>
+        severityToNumber(a.severity) - severityToNumber(b.severity),
       sortDirections: ["ascend", "descend"],
       render: (severity) => {
         let color = "blue";
@@ -131,9 +134,6 @@ function FindingsTable({
       sortDirections: ["ascend", "descend"],
       render: (text) => <span>{text ? truncateText(text, 70) : ""}</span>,
     },
-    // -------------------------
-    // NEW Ticket Column at the END
-    // -------------------------
     {
       title: "Ticket",
       dataIndex: "ticketId",
@@ -149,7 +149,7 @@ function FindingsTable({
             type="primary"
             icon={<LinkOutlined />}
             onClick={(e) => {
-              e.stopPropagation(); // Prevent row click from opening the drawer
+              e.stopPropagation();
               window.location.href = `/tickets?ticketId=${ticketId}`;
             }}
           >
@@ -171,12 +171,11 @@ function FindingsTable({
           pageSize: pageSize,
           total: totalHits,
           showTotal: (total) =>
-            `Total ${total} items, ${totalPages} pages overall`,
+            `Total ${total} items (${totalPages} pages overall)`,
           showSizeChanger: true,
           pageSizeOptions: ["10", "20", "50", "100"],
         }}
         onChange={handleTableChange}
-        // Allows horizontal scrolling only if total columns exceed the container
         scroll={{ x: "max-content", y: "52vh" }}
         onRow={(record) => ({
           onClick: () => onRowClick && onRowClick(record),

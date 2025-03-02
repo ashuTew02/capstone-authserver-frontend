@@ -21,7 +21,6 @@ function FindingsFilter({
   const [selectedState, setSelectedState] = useState(defaultState);
   const [selectedTool, setSelectedTool] = useState(defaultTool);
 
-  // Update local state when defaults change
   useEffect(() => {
     setSelectedSeverity(defaultSeverity);
   }, [defaultSeverity]);
@@ -45,7 +44,7 @@ function FindingsFilter({
           <Select
             mode="multiple"
             allowClear
-            placeholder="Select tool(s)"
+            placeholder="🔎 Select tool(s)"
             style={{ width: 220 }}
             value={selectedTool}
             onChange={(val) => setSelectedTool(val)}
@@ -62,7 +61,7 @@ function FindingsFilter({
           <Select
             mode="multiple"
             allowClear
-            placeholder="Select severity(ies)"
+            placeholder="🚨 Select severity(ies)"
             style={{ width: 220 }}
             value={selectedSeverity}
             onChange={(val) => setSelectedSeverity(val)}
@@ -79,7 +78,7 @@ function FindingsFilter({
           <Select
             mode="multiple"
             allowClear
-            placeholder="Select state(s)"
+            placeholder="🔧 Select state(s)"
             style={{ width: 220 }}
             value={selectedState}
             onChange={(val) => setSelectedState(val)}
@@ -93,7 +92,11 @@ function FindingsFilter({
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" onClick={handleApplyFilters}>
+          <Button
+            type="primary"
+            onClick={handleApplyFilters}
+            style={{ borderRadius: 6 }}
+          >
             Apply
           </Button>
         </Form.Item>

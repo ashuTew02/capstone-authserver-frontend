@@ -1,9 +1,7 @@
 /*
   layoutStyles.css
   =================
-
-  A complete overhaul of your layout styling with a more modern,
-  professional, and animated design. The logic remains the same.
+  Overhauled styling with a modern, professional, and animated design.
 */
 
 /* RESET & BASE STYLES */
@@ -21,7 +19,6 @@ body {
 }
 
 /* ===================== APP LAYOUT WRAPPER ===================== */
-/* A swirling gradient background with a subtle fade-in animation. */
 .app-layout-wrapper {
   min-height: 100vh;
   position: relative;
@@ -50,17 +47,12 @@ body {
   }
 }
 
-/* 
-  The main section after the sidebar,
-  with a subtle transition in background 
-*/
 .layout-main {
   background: transparent;
   transition: background 0.3s ease;
 }
 
 /* ===================== CONTENT AREA ===================== */
-/* A card-like container with a smooth slide-up effect. */
 .layout-content {
   margin: 24px;
   padding: 24px;
@@ -69,7 +61,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   animation: slideUp 0.6s ease forwards;
-  opacity: 0; /* Start hidden for the slideUp animation */
+  opacity: 0;
 }
 
 @keyframes slideUp {
@@ -98,12 +90,9 @@ body {
   transition: background 0.3s ease;
 }
 
-.navbar-title {
-  font-size: 22px;
-  font-weight: 700;
-  color: #35198e;
-  letter-spacing: 0.5px;
-  text-shadow: 1px 1px 2px rgba(53, 25, 142, 0.2);
+.navbar-left {
+  display: flex;
+  align-items: center;
 }
 
 .navbar-actions {
@@ -112,26 +101,13 @@ body {
   align-items: center;
 }
 
-/* Desktop actions row hides on mobile */
 .desktop-actions {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-/* Search input in the navbar (optional) */
-.navbar-search {
-  width: 220px;
-  border-radius: 6px;
-  transition: box-shadow 0.2s ease;
-}
-
-.navbar-search:focus,
-.navbar-search:hover {
-  box-shadow: 0 0 5px rgba(53, 25, 142, 0.3);
-}
-
-/* Mobile menu button (hamburger) - hidden on desktop */
+/* The mobile menu button (hamburger) - hidden on desktop */
 .mobile-menu-btn {
   display: none;
 }
@@ -153,17 +129,12 @@ body {
 }
 
 /* ===================== SIDEBAR ===================== */
-/* 
-   We'll apply a gradient background 
-   with a diagonal shimmer effect.
-*/
 .sidebar-sider {
   background: linear-gradient(135deg, #35198e 0%, #2b2e4a 100%) !important;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
-/* Sidebar logo container */
 .sidebar-logo {
   height: 64px;
   margin: 16px;
@@ -179,7 +150,7 @@ body {
   object-fit: contain;
 }
 
-/* The menu items */
+/* Menu items */
 .sidebar-menu-item {
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }
@@ -188,36 +159,27 @@ body {
   color: #fff !important;
 }
 
-/* Hover effect on menu items */
 .sidebar-menu-item:hover {
   background: rgba(255, 255, 255, 0.15) !important;
   box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-/* Active (selected) item */
 .ant-menu-item-selected {
   background: rgba(255, 255, 255, 0.25) !important;
 }
+
 .ant-menu-item-selected a {
   color: #fff !important;
 }
 
-/* Collapsed sider adjustments */
 .ant-layout-sider-collapsed .sidebar-logo {
   margin: 8px;
 }
 
-/* Advanced collapse animation (optional) */
-.ant-layout-sider-collapsed {
-  transform: translateX(0);
+.navbar-title {
+  font-size: 1rem;
+  /* color: #35198e; */
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  margin-left: 10px;
 }
-
-/* 
-  If you want a 'scale' effect on collapse:
-  .ant-layout-sider-collapsed {
-    transform: scale(0.95);
-  }
-*/
-
-/* Extra responsiveness adjustments if needed */
-/* ... add more media queries as desired ... */

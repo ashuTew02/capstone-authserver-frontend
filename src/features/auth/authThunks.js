@@ -42,7 +42,7 @@ export const initializeAuthData = () => async (dispatch, getState) => {
     const currentTenant = currentTenantResult.data?.data;
 
     // 4) commit them to our Redux store
-    dispatch(setCredentials({ 
+    await dispatch(setCredentials({ 
       user, 
       allTenants, 
       currentTenant 

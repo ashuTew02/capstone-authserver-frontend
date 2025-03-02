@@ -1,0 +1,166 @@
+/* findingDetailsDrawer.css */
+
+/* Keyframes for subtle fade-slide in (drawer) and content scale-up */
+@keyframes fadeSlideIn {
+    0% {
+      transform: translateX(80px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes scaleUpFade {
+    0% {
+      transform: scale(0.98);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Drawer overrides */
+  .finding-details-drawer .ant-drawer-content {
+    border-radius: 12px 0 0 12px;
+    box-shadow: -3px 0 10px rgba(0, 0, 0, 0.07);
+    background: #fcfcfc;
+    animation: fadeSlideIn 0.5s cubic-bezier(0.16, 0.8, 0.44, 1) forwards;
+  }
+  
+  /* Title at top of drawer */
+  .drawer-finding-title {
+    margin-bottom: 0 !important;
+    color: #2e136a;
+    font-weight: 700 !important;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Loading spinner in Drawer */
+  .drawer-loading {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+  }
+  
+  /* Main drawer content; scale-up fade animation */
+  .drawer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding-bottom: 24px;
+    animation: scaleUpFade 0.4s ease forwards;
+  }
+  
+  /* 
+     ACTIONS ROW
+     -----------------
+     This row wraps both the "Update State" (if SUPER_ADMIN)
+     and the "Ticket Actions". We now use align-items: center
+     so that the items are vertically centered.
+  */
+  .finding-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Updated from flex-start to center */
+    margin-bottom: 8px;
+    gap: 16px;
+    background: #fefefe;
+    border-radius: 8px;
+    border: 1px solid #ebe9f7;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  }
+  
+  /* State Update Section */
+  .finding-state-update-section {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: scaleUpFade 0.4s ease forwards;
+    padding: 8px 0;
+  }
+  .state-update-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .state-update-label {
+    font-weight: 600;
+    margin-right: 4px;
+    color: #3d1152;
+  }
+  .state-select {
+    border-radius: 4px !important;
+  }
+  .save-state-button {
+    border-radius: 4px;
+    transition: background-color 0.3s;
+  }
+  .save-state-button:hover {
+    background-color: #4e2aba;
+    border-color: #4e2aba;
+    color: #fff;
+  }
+  
+  /* Ticket Actions container */
+  .ticket-actions-container {
+    width: 40%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .ticket-action-button {
+    border-radius: 4px;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .ticket-action-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Key-value table container */
+  .finding-keyvalue-table {
+    margin-top: 8px;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    padding: 16px;
+  }
+  
+  /* Description & Suggestions blocks */
+  .finding-description,
+  .finding-suggestions {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  }
+  
+  /* Markdown content for description/suggestions */
+  .markdown-content {
+    background: #fafafa;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+    max-height: 250px;
+    overflow-y: auto;
+  }
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3 {
+    color: #4421af;
+  }
+  .markdown-content p {
+    margin-bottom: 8px;
+  }
+  

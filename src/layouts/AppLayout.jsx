@@ -18,6 +18,7 @@ function AppLayout() {
       <Layout className="layout-main">
         <Navbar />
         <Content className="layout-content">
+          {/* All pages (Dashboard, Findings, Runbooks, Profile, etc.) render here */}
           <Outlet />
         </Content>
       </Layout>

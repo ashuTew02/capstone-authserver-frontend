@@ -1,3 +1,5 @@
+// src/layouts/Navbar.jsx
+
 import React, { useState, useEffect } from "react";
 import {
   Layout,
@@ -20,38 +22,37 @@ import {
 } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCredentials, setCredentials } from "../features/auth/authSlice";
-import { findingsApi } from "../api/findingsApi";
+import { Link } from "react-router-dom";
 import {
   authApi,
   useGetUserTenantsQuery,
   useSwitchTenantMutation,
 } from "../api/authApi";
 import { usePostScanMutation } from "../api/scanApi";
-import "./layoutStyles.css";
-import { Link } from "react-router-dom";
 import convertTextFormat from "../utils/convertToProperTextUtil";
+import "./layoutStyles.css";
 
 const { Header } = Layout;
 const { Option } = Select;
 
 function Navbar() {
   const dispatch = useDispatch();
-
+  
   // ========== AUTH / TENANT DATA ==========
   const { user, currentTenant, allTenants } = useSelector((state) => state.auth);
   const roles = currentTenant ? [currentTenant.roleName] : [];
-
+  
   // ========== SCAN STATES ==========
   const [selectedScanTypes, setSelectedScanTypes] = useState([]);
   const [postScan, { isLoading: isScanLoading }] = usePostScanMutation();
-
+  
   const handleScan = async () => {
     try {
       const isScanAllTrue = selectedScanTypes.includes("ALL");
       if (!isScanAllTrue) {
-        await postScan({ toolsToScan: selectedScanTypes, scanAll: isScanAllTrue }).unwrap();
+        await postScan({ toolsToScan: selectedScanTypes, scanAll: false }).unwrap();
       } else {
-        await postScan({ scanAll: isScanAllTrue }).unwrap();
+        await postScan({ scanAll: true }).unwrap();
       }
       message.success("Scan triggered successfully.");
     } catch (error) {
@@ -59,7 +60,7 @@ function Navbar() {
       console.log(error);
     }
   };
-
+  
   // ========== Switch Tenant ==========
   const { data: tenantsData, isSuccess: isTenantsSuccess } = useGetUserTenantsQuery();
   const [selectedTenant, setSelectedTenant] = useState(null);
@@ -70,10 +71,6 @@ function Navbar() {
       const result = await doSwitchTenant(tenantId).unwrap();
       const newToken = result.data.token;
       dispatch(setCredentials({ token: newToken }));
-      // Invalidate relevant caches if needed
-      // dispatch(findingsApi.util.invalidateTags(["Finding"]));
-      // dispatch(authApi.util.invalidateTags(["Auth"]));
-      // Force reload
       window.location.reload();
       message.success(`Switched to tenant ${tenantId} successfully!`);
     } catch (err) {
@@ -106,11 +103,10 @@ function Navbar() {
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
   // ========== Profile Dropdown ==========
-
   const menuItems = (
     <Menu style={{ minWidth: 140 }}>
       <Menu.Item key="role" disabled>
-        {currentTenant && convertTextFormat(currentTenant?.roleName) || "No Role"}
+        {currentTenant ? convertTextFormat(currentTenant.roleName) : "No Role"}
       </Menu.Item>
       <Menu.Item key="profile">
         <Link to="/profile">
@@ -136,12 +132,19 @@ function Navbar() {
           icon={!mobileMenuOpen ? <MenuOutlined /> : <CloseOutlined />}
           onClick={toggleMobileMenu}
         />
-        <div className="navbar-title">ArmorCode</div>
+        
+        {/* 
+          REVERTED BACK TO ORIGINAL STYLING, 
+          BUT REPLACED TEXT with “Welcome, <UserName>” 
+        */}
+        <div className="navbar-title">
+          Welcome, {user?.name || "User"}!
+        </div>
       </div>
 
       {/* Right side: Desktop actions */}
       <div className="navbar-actions desktop-actions">
-        {/* If you want the search bar visible, uncomment below
+        {/* Example optional search bar or hidden 
         <Input
           prefix={<SearchOutlined style={{ color: "#999" }} />}
           placeholder="Search..."
@@ -216,7 +219,7 @@ function Navbar() {
                 {user?.name || "User"}
               </p>
               <p style={{ margin: 0, fontSize: 11, color: "gray" }}>
-                {currentTenant && convertTextFormat(currentTenant?.roleName) || "No Role"}
+                {currentTenant ? convertTextFormat(currentTenant.roleName) : "No Role"}
               </p>
             </div>
             <DownOutlined style={{ marginLeft: 8, fontSize: 13 }} />
@@ -232,7 +235,7 @@ function Navbar() {
         open={mobileMenuOpen}
         className="mobile-drawer"
       >
-        {/* Replicate any needed menu items here for mobile */}
+        {/* Replicate any needed menu items here for mobile, if desired */}
       </Drawer>
     </Header>
   );

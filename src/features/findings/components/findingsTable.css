@@ -1,0 +1,82 @@
+/* findingsTable.css */
+
+/* Fade in from bottom animation */
+@keyframes fadeInUp {
+    0% {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  /* 
+     TABLE CONTAINER: 
+     We set a max-height so the table grows only up to the available viewport space 
+     minus the header/filter area (here roughly 240px). If there are few rows, the container 
+     will shrink to fit the content.
+  */
+  .findings-table-container {
+    max-height: calc(100vh - 240px); /* Adjust 240px as needed for header/filter heights */
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+    /* animation: fadeInUp 0.5s 0.4s ease forwards; */
+  }
+  
+  /* 
+     The .ant-table-wrapper is now a block element.
+  */
+  .ant-table-wrapper {
+    display: block;
+  }
+  
+  /* 
+     The table container (rows area) is given a max-height based on the overall container 
+     minus the pagination row height (here about 64px) so that if there is too much data, 
+     it scrolls within this area.
+  */
+  .ant-table-container {
+    max-height: calc(100vh - 240px - 64px); /* 64px approximates the pagination height */
+    overflow-y: auto;
+  }
+  
+  /* 
+     The table body height is left to auto, so if there are only a few rows, no extra space appears.
+  */
+  .ant-table-body {
+    height: auto !important;
+  }
+  
+  /* 
+     Pagination: Add some padding so the pagination controls are not flush to the right.
+  */
+  .ant-table-pagination.ant-pagination {
+    padding: 8px 16px;
+    box-sizing: border-box;
+  }
+  
+  /* Hover effect on table rows */
+  .ant-table-tbody > tr:hover {
+    background-color: #faf5ff !important;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Table text styling */
+  .table-title {
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .table-title:hover {
+    color: #4421af;
+    text-decoration: underline;
+  }
+  

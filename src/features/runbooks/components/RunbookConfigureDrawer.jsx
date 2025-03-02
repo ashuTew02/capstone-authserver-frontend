@@ -14,6 +14,7 @@ import {
   useGetStatesQuery,
 } from "../../../api/findingsApi";
 import convertTextFormat from "../../../utils/convertToProperTextUtil";
+import "./runbookConfigureDrawer.css";
 
 const { TabPane } = Tabs;
 
@@ -47,10 +48,9 @@ function RunbookConfigureDrawer({ runbook, onClose }) {
   const handleSaveTriggers = async () => {
     try {
       const values = await triggerForm.validateFields();
-      const triggerType = values.triggerType;
       await configureTriggers({
         runbookId: runbook.id,
-        triggers: [{ triggerType }],
+        triggers: [{ triggerType: values.triggerType }],
       }).unwrap();
       message.success("Triggers updated successfully!");
     } catch (err) {
@@ -64,9 +64,11 @@ function RunbookConfigureDrawer({ runbook, onClose }) {
   const handleSaveFilters = async () => {
     try {
       const values = await filterForm.validateFields();
-      const state = values.state || null;
-      const severity = values.severity || null;
-      await configureFilters({ runbookId: runbook.id, state, severity }).unwrap();
+      await configureFilters({
+        runbookId: runbook.id,
+        state: values.state || null,
+        severity: values.severity || null,
+      }).unwrap();
       message.success("Filters updated successfully!");
     } catch (err) {
       message.error("Failed to update filters");
@@ -79,10 +81,9 @@ function RunbookConfigureDrawer({ runbook, onClose }) {
   const handleSaveActions = async () => {
     try {
       const values = await actionForm.validateFields();
-      const to = values.toState || null;
       await configureActions({
         runbookId: runbook.id,
-        update: { to },
+        update: { to: values.toState || null },
         ticketCreate: !!values.ticketCreate,
       }).unwrap();
       message.success("Actions updated successfully!");
@@ -98,6 +99,10 @@ function RunbookConfigureDrawer({ runbook, onClose }) {
       width={600}
       onClose={onClose}
       open
+      // Use rootClassName for custom open/close animations
+    //   rootClassName="runbook-config-drawer"
+      maskClosable
+      destroyOnClose={false}
     >
       <Tabs defaultActiveKey="triggers">
         {/* TRIGGERS TAB */}
@@ -183,6 +188,7 @@ function RunbookConfigureDrawer({ runbook, onClose }) {
                 ))}
               </Select>
             </Form.Item>
+
             <Form.Item
               label="Ticket Create"
               name="ticketCreate"

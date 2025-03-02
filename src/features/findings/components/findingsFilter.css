@@ -1,0 +1,13 @@
+/* findingsFilter.css */
+
+.findings-filter-wrapper {
+    width: 100%;
+  }
+  
+  .findings-filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+  

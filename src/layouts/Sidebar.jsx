@@ -1,10 +1,12 @@
+// src/layouts/Sidebar.jsx
+
 import { useState } from "react";
 import { Layout, Menu } from "antd";
 import {
   DashboardOutlined,
   FileSearchOutlined,
   UserOutlined,
-  ProfileOutlined, // for the Tickets icon
+  ProfileOutlined, 
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
 import "./layoutStyles.css";
@@ -21,6 +23,8 @@ function Sidebar() {
       collapsed={collapsed}
       onCollapse={(val) => setCollapsed(val)}
       className="sidebar-sider"
+      collapsedWidth={80}
+      breakpoint="lg"
     >
       {/* Sidebar logo section */}
       <div className="sidebar-logo">
@@ -64,9 +68,14 @@ function Sidebar() {
           <Link to="/tickets">Tickets</Link>
         </Menu.Item>
 
-        <Menu.Item key="/runbooks" icon={<FileSearchOutlined />}>
+        <Menu.Item
+          key="/runbooks"
+          icon={<FileSearchOutlined className="sidebar-menu-item"/>}
+          className="sidebar-menu-item"
+        >
           <Link to="/runbooks">Runbooks</Link>
         </Menu.Item>
+
         <Menu.Item
           key="/profile"
           icon={<UserOutlined />}
